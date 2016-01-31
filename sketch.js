@@ -10,7 +10,7 @@ function setup() {
   var orbiter;
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
-  planetBaseSpeed = PI / 500;
+  planetBaseSpeed = PI / 200;
 
 
   // create planet kick
@@ -49,6 +49,9 @@ function setup() {
   snare.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
   );
+  snare.orbiters.push(
+    createOrbiter(PI, planetBaseSpeed * 5, 12, 500, "#FACADE", 2)
+  );
   // set planet snare's orbit color
   orbitPathColors.push("#DEDEDE");
   // add planet snare to univ
@@ -58,7 +61,7 @@ function setup() {
   synth = createOrbiter(3*PI/2, planetBaseSpeed, 90, 150, "#888", 1);
   // create planet synth's moons
 
-  orbiter = createOrbiter(3*PI/2, planetBaseSpeed * 10, 50, 190, "#0000FF", 3);
+  orbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
   orbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
 
   synth.orbiters.push(

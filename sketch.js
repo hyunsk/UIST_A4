@@ -1,14 +1,31 @@
-// Define any global variables here
-// (BUT don't call any p5 methods here;
-//  call them in the functions below!)
+// Learning Processing
+// Daniel Shiffman
+// http://www.learningprocessing.com
+
+// Example 1-1: stroke and fill
 
 function setup() {
-  createCanvas(windowWidth, windowHeight); // Use the full browser window
-  // Additional setup goes here
+  createCanvas(windowWidth, windowHeight);
+  
 }
 
 function draw() {
-  // Put your drawing code here
+	windowCenterX = windowWidth / 2;
+	windowCenterY = windowHeight / 2;
+
+	stroke(255);
+	strokeWeight(1);
+	drawCircle(windowCenterX, windowCenterY, 400, 'rgb(255, 255, 255)');
+
+ 	background(0);
+ 	stroke(0);
+ 	drawCircle(windowCenterX, windowCenterY, 50, 'rgb(255, 255, 60)');
 }
 
-// Define any additional helper functions here
+
+function drawCircle(x, y, r, fillColor) {
+	var diam = r * 2;
+	fill(fillColor);
+	ellipse(x, y, diam, diam);
+
+}

@@ -5,11 +5,25 @@ var orbitPathColors = [];
 var univ = [];
 
 
-function setup() {
-  var kick, snare, hat, synth, bass;
-  var orbiter;
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Setup
+//
 
+function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
+  createUniverse();
+
+}
+
+//
+// Setup Helpers -------------------------------------------------------------------------------
+//
+
+function createUniverse(){
+  var kick, snare, hat, synth, bass;
+  var tempOrbiter;
+
   planetBaseSpeed = PI / 200;
 
 
@@ -57,25 +71,51 @@ function setup() {
   // add planet snare to univ
   univ.push(snare);
 
+
   // create planet synth
   synth = createOrbiter(3*PI/2, planetBaseSpeed, 90, 150, "#888", 1);
   // create planet synth's moons
-
-  orbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
-  orbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
+  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
+  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
 
   synth.orbiters.push(
-    orbiter
+    tempOrbiter
   );
   synth.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
   );
-  // set planet kick orbit color
+  // set planet synth orbit color
   orbitPathColors.push("#EDEDED");
-  // add planet kick to univ
+  // add planet synth to univ
   univ.push(synth);
+
+  // create planet bass
+  bass = createOrbiter(3*PI/2, planetBaseSpeed, 10, 530, "#888", 1);
+  // create planet bass' moons
+  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
+  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
+
+  bass.orbiters.push(
+    tempOrbiter
+  );
+  bass.orbiters.push(
+    createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
+  );
+  // set planet bass' orbit color
+  orbitPathColors.push("#EDEDED");
+  // add planet bass to univ
+  univ.push(bass);
 }
 
+//
+// Setup
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Draw
+//
 
 function draw() {
   var i, orbiter, orbitColor;
@@ -104,6 +144,10 @@ function draw() {
     drawOrbiters(orbiter.x, orbiter.y, orbiter.orbiters);
   }
 }
+
+//
+// Draw Helpers -------------------------------------------------------------------------------
+//
 
 function createOrbiter(initRotation, delta, radius, rotationRadius, stroke, strokeWeight){
   // initRotation - where to begin
@@ -177,4 +221,9 @@ function getOrbitPos(x, y, r, rad){
 
   return pt;
 }
+
+//
+// Draw
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
 

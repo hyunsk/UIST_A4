@@ -26,7 +26,7 @@ function createUniverse(){
 
 
   // create planet kick
-  kick = createOrbiter(0, planetBaseSpeed, 20, 300, "#D3F3C8", 1);
+  kick = createOrbiter(0, planetBaseSpeed, 20, 300, "#D3F3C8", 1, 20, 10);
   // create planet kick's moons
   kick.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 5, 5, 60, "#5A17ED", 1)
@@ -41,7 +41,7 @@ function createUniverse(){
 
 
   // create planet hat
-  hat = createOrbiter(PI/2, planetBaseSpeed, 20, 200, "#D3F3C8", 1);
+  hat = createOrbiter(PI/2, planetBaseSpeed, 20, 200, "#D3F3C8", 1, 20, 10);
   // create planet kick's moons
   hat.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 5, 5, 60, "#5A17ED", 1)
@@ -56,7 +56,7 @@ function createUniverse(){
 
 
   // create planet snare
-  snare = createOrbiter(PI, planetBaseSpeed * 2, 30, 500, "#59A27A", 10);
+  snare = createOrbiter(PI, planetBaseSpeed * 2, 30, 500, "#59A27A", 10, 20, 10);
   // create planet snare's moons
   snare.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
@@ -71,7 +71,7 @@ function createUniverse(){
 
 
   // create planet synth
-  synth = createOrbiter(3*PI/2, planetBaseSpeed, 90, 150, "#888", 1);
+  synth = createOrbiter(3*PI/2, planetBaseSpeed, 30, 150, "#888", 1, 20, 30);
   // create planet synth's moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
@@ -88,9 +88,9 @@ function createUniverse(){
   univ.push(synth);
 
   // create planet bass
-  bass = createOrbiter(3*PI/2, planetBaseSpeed, 10, 530, "#888", 1);
+  bass = createOrbiter(3*PI/2, planetBaseSpeed, 10, 530, "#888", 1, 20, 10);
   // create planet bass' moons
-  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
+  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 20, 190, "#0000FF", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
 
   bass.orbiters.push(
@@ -116,34 +116,35 @@ function createUniverse(){
 //
 
 function draw() {
-  var i, orbiter, orbitColor;
+  var i, planet, doFlare;
 
 
   clear();
   background(0);
 
-  noFill();
-
   x = windowWidth / 2;
   y = windowHeight / 2;
 
   for(i=0; i<univ.length; i++){
-    orbiter = univ[i];
+    planet = univ[i];
 
     // draw orbit path
+    noFill();
     stroke(orbitPathColors[i]);
     strokeWeight(1);
-    drawCircle(x, y, orbiter.rotationRadius);
+    drawCircle(x, y, planet.rotationRadius);
+
+
+    // trigger flare
+    doFlare = isAtOrbitRotation(PI/2, planet);
 
     // draw planet
-    drawOrbiter(x, y, orbiter);
+    drawOrbiter(x, y, planet, doFlare);
+    updateOrbiterRotation(planet);
 
-    if (isAtOrbitRotation(PI, orbiter)){
-      console.log("bottom", i);
-    }
 
     // draw planet's orbiters
-    drawOrbiters(orbiter.x, orbiter.y, orbiter.orbiters);
+    drawOrbiters(planet.x, planet.y, planet.orbiters);
   }
 }
 
@@ -151,7 +152,7 @@ function draw() {
 // Draw Helpers -------------------------------------------------------------------------------
 //
 
-function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor, strokeWeight){
+function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor, strokeWeight, flareDecay, flareMaxLength){
   // initRotation - where to begin
   // rotation - current rotation around parent
   // delta - how fast to orbit
@@ -161,6 +162,7 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
   // strokeWeight - stroke weight of orbiter
 
   var orbiter = {orbiters: []};
+  orbiter.initRotation = initRotation;
   orbiter.rotation = initRotation;
   orbiter.delta = delta;
   orbiter.radius = radius;
@@ -174,14 +176,30 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
   orbiter.x = 0;
   orbiter.y = 0;
 
+  // flare animation properties
+  orbiter.doFlare = false;
+  orbiter.flareDecay = 0;
+  orbiter.flareMaxLength = 0;
+  orbiter.flareLength = 0;
+  orbiter.flareAge = 0;
+
+  if(typeof flareDecay !== "undefined"){
+    orbiter.flareDecay = flareDecay;
+  }
+
+  if(typeof flareMaxLength !== "undefined"){
+    orbiter.flareMaxLength = flareMaxLength;
+  }
+
   return orbiter;
 }
 
-function drawOrbiters(x, y, univ){
+function drawOrbiters(x, y, univ, doFlare){
   var i, orbiter;
   for (i = 0; i< univ.length; i++){
     orbiter = univ[i];
-    drawOrbiter(x, y, orbiter);
+    drawOrbiter(x, y, orbiter, doFlare);
+    updateOrbiterRotation(orbiter);
 
     if (orbiter.orbiters.length){
       drawOrbiters(orbiter.x, orbiter.y, orbiter.orbiters)
@@ -189,11 +207,15 @@ function drawOrbiters(x, y, univ){
   }
 }
 
-function drawOrbiter(x, y, orbiter){
+function drawOrbiter(x, y, orbiter, doFlare){
   var pt;
 
-  stroke(orbiter.strokeColor);
-  strokeWeight(orbiter.strokeWeight);
+  if (doFlare){
+    orbiter.doFlare = true;
+  }
+
+  fill(orbiter.strokeColor);
+  noStroke();
 
   pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
 
@@ -202,7 +224,56 @@ function drawOrbiter(x, y, orbiter){
 
   drawCircle(orbiter.x, orbiter.y, orbiter.radius);
 
+  if (orbiter.doFlare){
+    drawOrbiterFlare(x, y, orbiter);
+  }
+}
+
+function updateOrbiterRotation(orbiter){
   orbiter.rotation += orbiter.delta;
+}
+
+function drawOrbiterFlare(x, y, orbiter){
+  var i, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier;
+
+  orbiter.initRotation = orbiter.rotation;
+  orbiter.initStrokeColor = orbiter.strokeColor;
+
+  if (orbiter.flareAge >= orbiter.flareDecay){
+    orbiter.doFlare = false;
+    orbiter.flareAge = 0;
+    orbiter.flareLength = 0;
+    orbiter.radius = orbiter.initRadius;
+    return;
+  }
+
+  lifeRatio = orbiter.flareAge / orbiter.flareDecay;
+
+  alphaDelta = -1 / orbiter.flareLength;
+
+  for (i=0; i< orbiter.flareLength; i++){
+    orbiter.doFlare = false;
+
+    orbiter.rotation -= orbiter.delta;
+    currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
+
+    orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
+
+    radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
+
+    orbiter.radius = orbiter.initRadius * radiusMultiplier;
+
+    drawOrbiter(x, y, orbiter);
+  }
+
+  orbiter.rotation = orbiter.initRotation;
+  orbiter.strokeColor = orbiter.initStrokeColor;
+  orbiter.doFlare = true;
+
+  orbiter.flareAge++;
+  if (orbiter.flareLength < orbiter.flareMaxLength){
+    orbiter.flareLength++;
+  }
 }
 
 function drawCircle(x, y, r) {

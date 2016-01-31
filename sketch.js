@@ -7,9 +7,10 @@ var univ = [];
 
 function setup() {
   var kick, snare, hat, synth, bass;
+  var orbiter;
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
-  planetBaseSpeed = PI / 100;
+  planetBaseSpeed = PI / 500;
 
 
   // create planet kick
@@ -27,6 +28,19 @@ function setup() {
   univ.push(kick);
 
 
+  // create planet hat
+  hat = createOrbiter(PI/2, planetBaseSpeed, 20, 200, "#D3F3C8", 1);
+  // create planet kick's moons
+  hat.orbiters.push(
+    createOrbiter(0, planetBaseSpeed * 5, 5, 60, "#5A17ED", 1)
+  );
+  hat.orbiters.push(
+    createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
+  );
+  // set planet kick orbit color
+  orbitPathColors.push("#FA7A55");
+  // add planet kick to univ
+  univ.push(hat);
 
 
   // create planet snare
@@ -39,6 +53,24 @@ function setup() {
   orbitPathColors.push("#DEDEDE");
   // add planet snare to univ
   univ.push(snare);
+
+  // create planet synth
+  synth = createOrbiter(3*PI/2, planetBaseSpeed, 90, 150, "#888", 1);
+  // create planet synth's moons
+
+  orbiter = createOrbiter(3*PI/2, planetBaseSpeed * 10, 50, 190, "#0000FF", 3);
+  orbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
+
+  synth.orbiters.push(
+    orbiter
+  );
+  synth.orbiters.push(
+    createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
+  );
+  // set planet kick orbit color
+  orbitPathColors.push("#EDEDED");
+  // add planet kick to univ
+  univ.push(synth);
 }
 
 
@@ -102,7 +134,7 @@ function drawOrbiters(x, y, univ){
     drawOrbiter(x, y, orbiter);
 
     if (orbiter.orbiters.length){
-      drawOrbiters(orbiter.x, orbiter.y, orbiters.orbiters)
+      drawOrbiters(orbiter.x, orbiter.y, orbiter.orbiters)
     }
   }
 }

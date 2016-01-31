@@ -1,5 +1,3 @@
-var rot = 0;
-var rotMoon = 0;
 var planetBaseSpeed = 0;
 var orbitPathColors = [];
 var univ = [];
@@ -13,7 +11,7 @@ var univ = [];
 function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
   createUniverse();
-
+  frameRate(60);
 }
 
 //

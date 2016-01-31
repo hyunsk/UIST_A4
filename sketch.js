@@ -1,12 +1,17 @@
 var rot = 0;
+var rotMoon = 0;
+var planetBaseSpeed = 0;
 
 function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
   //background(0);
+
+  planetBaseSpeed = PI / 100;
 }
 
 function draw() {
   var x, y, r, pt, diff;
+  clear();
 
   stroke("#D3F3C8");
   noFill();
@@ -26,15 +31,29 @@ function draw() {
 
   stroke("#FA7A55");
 
+  // planet orbit
+  drawCircle(pt.x, pt.y, 50);
 
-  drawCircle(pt.x, pt.y, 5);
+  // planet
+  stroke("#000000");
+  drawCircle(pt.x, pt.y, 20);
 
-  rot += PI / 80;
+  pt = getOrbitPos(pt.x, pt.y, 50, rotMoon);
+
+  // moon
+  drawCircle(pt.x, pt.y, 2);
+
+  rotMoon += planetBaseSpeed * random(1, 10);
+  rot += planetBaseSpeed;
 }
 
 function drawCircle(x, y, r) {
   var diam = r * 2;
   ellipse(x, y, diam, diam);
+}
+
+function isAtBottom(x, y, pt, r){
+
 }
 
 function getOrbitPos(x, y, r, rad){

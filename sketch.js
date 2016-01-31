@@ -233,6 +233,24 @@ function getOrbitPos(x, y, r, rad){
   return pt;
 }
 
+function adjustColorAlpha(colorInstance, targetAlpha){
+  var str;
+
+  // color gets wonky with extremely small alphas
+  if (targetAlpha < 0.001){
+    targetAlpha = 0;
+  }
+
+  str = red(colorInstance) + ", " + green(colorInstance) + ", " + blue(colorInstance) + ", " + targetAlpha;
+  str = "rgba(" + str + ")";
+
+  return color(str);
+}
+
+function getAlphaFraction(colorInstance){
+  return alpha(colorInstance) / 255;
+}
+
 //
 // Draw
 //

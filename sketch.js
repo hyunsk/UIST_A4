@@ -37,7 +37,7 @@ function createUniverse(){
     createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
   );
   // set planet kick orbit color
-  orbitPathColors.push("#FA7A55");
+  orbitPathColors.push("#E5FCC2");
   // add planet kick to univ
   univ.push(kick);
 
@@ -52,7 +52,7 @@ function createUniverse(){
     createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
   );
   // set planet kick orbit color
-  orbitPathColors.push("#FA7A55");
+  orbitPathColors.push("#9DE0AD");
   // add planet kick to univ
   univ.push(hat);
 
@@ -67,7 +67,7 @@ function createUniverse(){
     createOrbiter(PI, planetBaseSpeed * 5, 12, 500, "#FACADE", 2)
   );
   // set planet snare's orbit color
-  orbitPathColors.push("#DEDEDE");
+  orbitPathColors.push("#45ADA8");
   // add planet snare to univ
   univ.push(snare);
 
@@ -85,7 +85,7 @@ function createUniverse(){
     createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
   );
   // set planet synth orbit color
-  orbitPathColors.push("#EDEDED");
+  orbitPathColors.push("#547980");
   // add planet synth to univ
   univ.push(synth);
 
@@ -102,7 +102,7 @@ function createUniverse(){
     createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
   );
   // set planet bass' orbit color
-  orbitPathColors.push("#EDEDED");
+  orbitPathColors.push("#2D727F");
   // add planet bass to univ
   univ.push(bass);
 }
@@ -124,7 +124,6 @@ function draw() {
   clear();
   background(0);
 
-  stroke("#FA7A55");
   noFill();
 
   x = windowWidth / 2;
@@ -140,6 +139,11 @@ function draw() {
 
     // draw planet
     drawOrbiter(x, y, orbiter);
+
+    if (isAtOrbitRotation(PI, orbiter)){
+      console.log("bottom", i);
+    }
+
     // draw planet's orbiters
     drawOrbiters(orbiter.x, orbiter.y, orbiter.orbiters);
   }
@@ -149,12 +153,13 @@ function draw() {
 // Draw Helpers -------------------------------------------------------------------------------
 //
 
-function createOrbiter(initRotation, delta, radius, rotationRadius, stroke, strokeWeight){
+function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor, strokeWeight){
   // initRotation - where to begin
+  // rotation - current rotation around parent
   // delta - how fast to orbit
   // radius - radius of orbiter
   // rotationRadius - distance to center of rotation
-  // stroke - stroke color of orbiter
+  // strokeColor(string) - stroke color of orbiter
   // strokeWeight - stroke weight of orbiter
 
   var orbiter = {orbiters: []};
@@ -163,8 +168,8 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, stroke, stro
   orbiter.radius = radius;
   orbiter.initRadius = radius;
   orbiter.rotationRadius = rotationRadius;
-  orbiter.stroke = stroke;
-  orbiter.initStroke = stroke;
+  orbiter.strokeColor = color(strokeColor);
+  orbiter.initStrokeColor = orbiter.strokeColor;
   orbiter.strokeWeight = strokeWeight;
 
   // initial values for x, y
@@ -189,7 +194,7 @@ function drawOrbiters(x, y, univ){
 function drawOrbiter(x, y, orbiter){
   var pt;
 
-  stroke(orbiter.stroke);
+  stroke(orbiter.strokeColor);
   strokeWeight(orbiter.strokeWeight);
 
   pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
@@ -197,7 +202,7 @@ function drawOrbiter(x, y, orbiter){
   orbiter.x = pt.x;
   orbiter.y = pt.y;
 
-  drawCircle(orbiter.x, orbiter.y, orbiter.radius)
+  drawCircle(orbiter.x, orbiter.y, orbiter.radius);
 
   orbiter.rotation += orbiter.delta;
 }
@@ -207,7 +212,15 @@ function drawCircle(x, y, r) {
   ellipse(x, y, diam, diam);
 }
 
-function isAtBottom(x, y, pt, r){
+function isAtOrbitRotation(targetRotation, orbiter){
+  // normalize rotation
+  orbiter.rotation = orbiter.rotation % TWO_PI;
+
+  if ((orbiter.rotation > targetRotation) || (orbiter.rotation + orbiter.delta < targetRotation)){
+    return false;
+  }
+
+  return true;
 
 }
 

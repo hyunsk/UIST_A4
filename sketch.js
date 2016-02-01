@@ -3,8 +3,8 @@ var orbitPathColors = [];
 var univ = [];
 var stars = [];
 var starMaxRadius = null;
-var orbitScaleFactor = 0.6;
-var orbiterSizeScaleFactor = 0.65;
+var orbitScaleFactor = 1;
+var orbiterSizeScaleFactor = 1;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -187,9 +187,9 @@ function draw() {
 
 
     // trigger flare
-    doFlare = isAtOrbitRotation(PI/2, planet);
+    //doFlare = isAtOrbitRotation(PI/2, planet);
 
-    //doFlare = false;      // remove flares for now
+    doFlare = false;      // remove flares for now
 
     // draw planet
     drawOrbiter(x, y, planet, doFlare);

@@ -47,13 +47,13 @@ function createUniverse(){
 
   // create planet hat
   // second ring
-  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#D3F3C8", 1, 20, 10);
+  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#37B7B5", 1, 20, 10);
   // create planet kick's moons
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#5A17ED", 1)
+    createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#A0E4E0", 1)
   );
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 2, 5, 45, "#FACADE", 1)
+    createOrbiter(0, planetBaseSpeed * 2, 5, 45, "#C7F6F5", 1)
   );
   // set planet kick orbit color
   orbitPathColors.push("#9DE0AD");
@@ -110,6 +110,11 @@ function createUniverse(){
   orbitPathColors.push("#2D727F");
   // add planet bass to univ
   univ.push(bass);
+
+    
+    fill(255, 255, 255)
+  rect(0,0,windowWidth,windowHeight)
+
 }
 
 //
@@ -126,8 +131,9 @@ function draw() {
   var i, planet, doFlare;
 
 
-  clear();
-  background(0);
+  //clear();
+
+
 
   x = windowWidth / 2;
   y = windowHeight / 2;
@@ -152,6 +158,12 @@ function draw() {
     // draw planet's orbiters
     drawOrbiters(planet.x, planet.y, planet.orbiters);
   }
+
+
+
+  fill(255, 255, 255, 5)
+  rect(0,0,windowWidth,windowHeight)
+
 }
 
 //

@@ -145,7 +145,7 @@ function draw() {
 
 
     // trigger flare
-    // doFlare = isAtOrbitRotation(PI/2, planet);
+    doFlare = isAtOrbitRotation(PI/2, planet);
 
     // draw planet
     drawOrbiter(x, y, planet, doFlare);
@@ -247,7 +247,7 @@ function updateOrbiterRotation(orbiter){
 }
 
 function drawOrbiterFlare(x, y, orbiter){
-  var i, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier;
+  var i, j, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier, flareParticles, pt;
 
   orbiter.initRotation = orbiter.rotation;
   orbiter.initStrokeColor = orbiter.strokeColor;
@@ -264,20 +264,37 @@ function drawOrbiterFlare(x, y, orbiter){
 
   alphaDelta = -1 / orbiter.flareLength;
 
+  flareParticles = new ParticleSystem(createVector(orbiter.x, orbiter.y));
+
   for (i=0; i< orbiter.flareLength; i++){
     orbiter.doFlare = false;
 
-    orbiter.rotation -= orbiter.delta;
+    orbiter.rotation -= ((orbiter.delta + 2) * 1.4);
     currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
 
     orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
 
-    radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
+    //radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
 
-    orbiter.radius = orbiter.initRadius * radiusMultiplier;
+    //orbiter.radius = orbiter.initRadius * radiusMultiplier;
 
-    drawOrbiter(x, y, orbiter);
+    //drawOrbiter(x, y, orbiter);
+
+    pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
+
+    orbiter.x = pt.x;
+    orbiter.y = pt.y;
+
+
+    flareParticles.origin.x = pt.x;
+    flareParticles.origin.y = pt.y;
+
+    flareParticles.addParticle();
+
+
   }
+  flareParticles.run();
+
 
   orbiter.rotation = orbiter.initRotation;
   orbiter.strokeColor = orbiter.initStrokeColor;
@@ -334,6 +351,65 @@ function adjustColorAlpha(colorInstance, targetAlpha){
 function getAlphaFraction(colorInstance){
   return alpha(colorInstance) / 255;
 }
+
+// Particle System from example -------------------------------------------------------------------------------
+
+// A simple Particle class
+var Particle = function(position) {
+  this.acceleration = createVector(0, 0.05);
+  this.velocity = createVector(random(-1, 1), random(-1, 0));
+  this.position = position.copy();
+  this.lifespan = 255.0;
+};
+
+Particle.prototype.run = function() {
+  this.update();
+  this.display();
+};
+
+// Method to update position
+Particle.prototype.update = function(){
+  this.velocity.add(this.acceleration);
+  this.position.add(this.velocity);
+  this.lifespan -= 2;
+};
+
+// Method to display
+Particle.prototype.display = function() {
+  stroke(200, this.lifespan);
+  strokeWeight(2);
+  fill(127, this.lifespan);
+  ellipse(this.position.x, this.position.y, 12, 12);
+};
+
+// Is the particle still useful?
+Particle.prototype.isDead = function(){
+  if (this.lifespan < 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+var ParticleSystem = function(position) {
+  this.origin = position.copy();
+  this.particles = [];
+};
+
+ParticleSystem.prototype.addParticle = function() {
+  this.particles.push(new Particle(this.origin));
+};
+
+ParticleSystem.prototype.run = function() {
+  for (var i = this.particles.length-1; i >= 0; i--) {
+    var p = this.particles[i];
+    p.run();
+    if (p.isDead()) {
+      this.particles.splice(i, 1);
+    }
+  }
+};
+
 
 //
 // Draw

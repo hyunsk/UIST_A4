@@ -3,6 +3,8 @@ var orbitPathColors = [];
 var univ = [];
 var stars = [];
 var starMaxRadius = null;
+var orbitScaleFactor = 0.6;
+var orbiterSizeScaleFactor = 0.65;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -28,7 +30,7 @@ function createUniverse(){
 
   // create planet kick
   // first ring
-  kick = createOrbiter(0, planetBaseSpeed, 8, 150, "#106EE8", 1, 20, 10);
+  kick = createOrbiter(0, planetBaseSpeed, 8, 150, "#106EE8", 1, 100, 10);
   // create planet kick's moons
   kick.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 2.2, 2, 20, "#0FC1A1", 1)
@@ -162,7 +164,7 @@ function draw() {
   fill(0, 0, 0, 20)
   rect(0,0,windowWidth,windowHeight)
 
-  //draw sun  
+  //draw sun
   fill('#FF9757');
   ellipse((windowWidth/2), (windowHeight/2), 100, 100);
 
@@ -185,7 +187,9 @@ function draw() {
 
 
     // trigger flare
-    // doFlare = isAtOrbitRotation(PI/2, planet);
+    doFlare = isAtOrbitRotation(PI/2, planet);
+
+    //doFlare = false;      // remove flares for now
 
     // draw planet
     drawOrbiter(x, y, planet, doFlare);
@@ -236,6 +240,11 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
   // strokeColor(string) - stroke color of orbiter
   // strokeWeight - stroke weight of orbiter
 
+
+  // scale orbiter's size and rotation radius by global scale factors
+  radius *= orbiterSizeScaleFactor;
+  rotationRadius *= orbitScaleFactor;
+
   var orbiter = {orbiters: []};
   orbiter.initRotation = initRotation;
   orbiter.rotation = initRotation;
@@ -266,6 +275,8 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
     orbiter.flareMaxLength = flareMaxLength;
   }
 
+  orbiter.particles = new ParticleSystem(createVector(orbiter.x, orbiter.y));
+
   return orbiter;
 }
 
@@ -289,6 +300,10 @@ function drawOrbiter(x, y, orbiter, doFlare){
     orbiter.doFlare = true;
   }
 
+  if (orbiter.doFlare){
+    drawOrbiterFlare(x, y, orbiter);
+  }
+
   fill(orbiter.strokeColor);
   noStroke();
 
@@ -299,9 +314,6 @@ function drawOrbiter(x, y, orbiter, doFlare){
 
   drawCircle(orbiter.x, orbiter.y, orbiter.radius);
 
-  if (orbiter.doFlare){
-    drawOrbiterFlare(x, y, orbiter);
-  }
 }
 
 function updateOrbiterRotation(orbiter){
@@ -309,16 +321,22 @@ function updateOrbiterRotation(orbiter){
 }
 
 function drawOrbiterFlare(x, y, orbiter){
-  var i, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier;
+  var i, j, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier, flareParticles, pt, direction, dx, dy;
 
   orbiter.initRotation = orbiter.rotation;
   orbiter.initStrokeColor = orbiter.strokeColor;
 
   if (orbiter.flareAge >= orbiter.flareDecay){
+    // reset flare
+
     orbiter.doFlare = false;
     orbiter.flareAge = 0;
     orbiter.flareLength = 0;
     orbiter.radius = orbiter.initRadius;
+
+    while(orbiter.particles.particles.length){
+      delete orbiter.particles.particles.pop()
+    }
     return;
   }
 
@@ -326,20 +344,34 @@ function drawOrbiterFlare(x, y, orbiter){
 
   alphaDelta = -1 / orbiter.flareLength;
 
-  for (i=0; i< orbiter.flareLength; i++){
-    orbiter.doFlare = false;
 
-    orbiter.rotation -= orbiter.delta;
-    currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
+  orbiter.particles.origin.x = orbiter.x;
+  orbiter.particles.origin.y = orbiter.y;
 
-    orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
+  // calculate slope from orbiter to orbit origin
+  dx = x - orbiter.particles.origin.x;
+  dy = y - orbiter.particles.origin.y;
 
-    radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
-
-    orbiter.radius = orbiter.initRadius * radiusMultiplier;
-
-    drawOrbiter(x, y, orbiter);
+  // scale slope
+  if (abs(dx) > abs(dy)){     // first scale to [-1, 1]
+    dy /= abs(dx);
+    dx /= abs(dx);
+  }else{
+    dx /= abs(dy)
+    dy /= abs(dy);
   }
+
+  // scale to map function
+  dx = map(dx, -1, 1, -0.1, 0.1);
+  dy = map(dy, -1, 1, -0.1, 0.1);
+
+  // negative inverse for tangent
+  direction = createVector(-dy, dx);
+
+  orbiter.particles.addParticle(direction, orbiter.strokeColor);
+
+  orbiter.particles.run();
+
 
   orbiter.rotation = orbiter.initRotation;
   orbiter.strokeColor = orbiter.initStrokeColor;
@@ -396,6 +428,67 @@ function adjustColorAlpha(colorInstance, targetAlpha){
 function getAlphaFraction(colorInstance){
   return alpha(colorInstance) / 255;
 }
+
+// Particle System from example -------------------------------------------------------------------------------
+
+// A simple Particle class
+var Particle = function(position, direction, particleColor) {
+  this.acceleration = direction;
+  this.velocity = createVector(random(-1, 1), random(-1, 0));
+  this.position = position.copy();
+  this.lifespan = 100.0;
+  this.particleColor = particleColor;
+};
+
+Particle.prototype.run = function() {
+  this.update();
+  this.display();
+};
+
+// Method to update position
+Particle.prototype.update = function(){
+  this.velocity.add(this.acceleration);
+  this.position.add(this.velocity);
+  this.lifespan -= 2;
+};
+
+// Method to display
+Particle.prototype.display = function() {
+  //stroke(200, this.lifespan);
+  //strokeWeight(2);
+  noStroke();
+  fill(adjustColorAlpha(this.particleColor, (this.lifespan / 100)));
+  ellipse(this.position.x, this.position.y, 12, 12);
+};
+
+// Is the particle still useful?
+Particle.prototype.isDead = function(){
+  if (this.lifespan < 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+var ParticleSystem = function(position) {
+  this.origin = position.copy();
+  this.particles = [];
+};
+
+ParticleSystem.prototype.addParticle = function(direction, particleColor) {
+  this.particles.push(new Particle(this.origin, direction, particleColor));
+};
+
+ParticleSystem.prototype.run = function() {
+  for (var i = this.particles.length-1; i >= 0; i--) {
+    var p = this.particles[i];
+    p.run();
+    if (p.isDead()) {
+      this.particles.splice(i, 1);
+    }
+  }
+};
+
 
 //
 // Draw

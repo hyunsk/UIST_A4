@@ -30,7 +30,7 @@ function createUniverse(){
 
   // create planet kick
   // first ring
-  kick = createOrbiter(0, planetBaseSpeed, 8, 150, "#106EE8", 1, 100, 10);
+  kick = createOrbiter(0, planetBaseSpeed, 8, 150, "#106EE8", 1, 10, 10);
   // create planet kick's moons
   kick.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 2.2, 2, 20, "#0FC1A1", 1)
@@ -80,7 +80,7 @@ function createUniverse(){
 
   // create planet synth
   // fourth ring
-  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 560, "#A56CC1", 1, 20, 30);
+  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 560, "#A56CC1", 1, 40, 35);
   // create planet synth's moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 2, 6, 50, "#A6ACEC", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 8, 100, "#ACE7EF", 2));
@@ -98,7 +98,7 @@ function createUniverse(){
 
   // create planet bass
   // fifth ring
-  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 40, 760, "#E14242", 1, 20, 10);
+  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 40, 760, "#E14242", 1, 50, 40);
   // create planet bass' moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 1.2, 10, 150, "#EACD65", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 6, 40, "#8D3434", 2));

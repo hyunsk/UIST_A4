@@ -26,13 +26,18 @@ function createUniverse(){
 
 
   // create planet kick
-  kick = createOrbiter(0, planetBaseSpeed, 20, 300, "#D3F3C8", 1, 20, 10);
+  // first ring
+  kick = createOrbiter(0, planetBaseSpeed, 8, 30, "#106EE8", 1, 20, 10);
   // create planet kick's moons
   kick.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 5, 5, 60, "#5A17ED", 1)
+    createOrbiter(0, planetBaseSpeed * 2.2, 2, 20, "#0FC1A1", 1)
   );
   kick.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
+    createOrbiter(0, planetBaseSpeed * 1.8, 3, 25, "#90E0AB", 1)
+  );
+
+  kick.orbiters.push(
+    createOrbiter(0, planetBaseSpeed * 1, 1, 32, "#CBFFCE", 1)
   );
   // set planet kick orbit color
   orbitPathColors.push("#E5FCC2");
@@ -41,13 +46,14 @@ function createUniverse(){
 
 
   // create planet hat
-  hat = createOrbiter(PI/2, planetBaseSpeed, 20, 200, "#D3F3C8", 1, 20, 10);
+  // second ring
+  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#D3F3C8", 1, 20, 10);
   // create planet kick's moons
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 5, 5, 60, "#5A17ED", 1)
+    createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#5A17ED", 1)
   );
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
+    createOrbiter(0, planetBaseSpeed * 2, 5, 45, "#FACADE", 1)
   );
   // set planet kick orbit color
   orbitPathColors.push("#9DE0AD");
@@ -56,14 +62,13 @@ function createUniverse(){
 
 
   // create planet snare
-  snare = createOrbiter(PI, planetBaseSpeed * 2, 30, 500, "#59A27A", 10, 20, 10);
+  // third ring
+  snare = createOrbiter(PI, planetBaseSpeed * 1.4, 16, 210, "#59A27A", 10, 20, 10);
   // create planet snare's moons
   snare.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 3, 10, 120, "#FACADE", 1)
+    createOrbiter(0, planetBaseSpeed * 5, 4, 40, "#FACADE", 1)
   );
-  snare.orbiters.push(
-    createOrbiter(PI, planetBaseSpeed * 5, 12, 500, "#FACADE", 2)
-  );
+
   // set planet snare's orbit color
   orbitPathColors.push("#45ADA8");
   // add planet snare to univ
@@ -71,16 +76,17 @@ function createUniverse(){
 
 
   // create planet synth
-  synth = createOrbiter(3*PI/2, planetBaseSpeed, 30, 150, "#888", 1, 20, 30);
+  // fourth ring
+  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 420, "#A56CC1", 1, 20, 30);
   // create planet synth's moons
-  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 50, 190, "#0000FF", 3);
-  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
+  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 2, 6, 50, "#A6ACEC", 3);
+  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 8, 100, "#ACE7EF", 2));
 
   synth.orbiters.push(
     tempOrbiter
   );
   synth.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
+    createOrbiter(0, planetBaseSpeed * 2.5, 12, 120, "#ACE7EF", 5)
   );
   // set planet synth orbit color
   orbitPathColors.push("#547980");
@@ -88,16 +94,17 @@ function createUniverse(){
   univ.push(synth);
 
   // create planet bass
-  bass = createOrbiter(3*PI/2, planetBaseSpeed, 10, 530, "#888", 1, 20, 10);
+  // fifth ring
+  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 50, 700, "#E14242", 1, 20, 10);
   // create planet bass' moons
-  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 3, 20, 190, "#0000FF", 3);
-  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 7, 10, 170, "#FF0000", 2));
+  tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 1.2, 10, 150, "#EACD65", 3);
+  tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 6, 40, "#8D3434", 2));
 
   bass.orbiters.push(
     tempOrbiter
   );
   bass.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 4, 10, 120, "#333", 5)
+    createOrbiter(0, planetBaseSpeed, 10, 80, "#EBEBCD", 5)
   );
   // set planet bass' orbit color
   orbitPathColors.push("#2D727F");
@@ -136,12 +143,11 @@ function draw() {
 
 
     // trigger flare
-    doFlare = isAtOrbitRotation(PI/2, planet);
+    // doFlare = isAtOrbitRotation(PI/2, planet);
 
     // draw planet
     drawOrbiter(x, y, planet, doFlare);
     updateOrbiterRotation(planet);
-
 
     // draw planet's orbiters
     drawOrbiters(planet.x, planet.y, planet.orbiters);

@@ -1,9 +1,10 @@
 var planetBaseSpeed = 0;
 var orbitPathColors = [];
 var univ = [];
+var stars = [];
+var starMaxRadius = null;
 var orbitScaleFactor = 0.6;
 var orbiterSizeScaleFactor = 0.65;
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -29,7 +30,7 @@ function createUniverse(){
 
   // create planet kick
   // first ring
-  kick = createOrbiter(0, planetBaseSpeed, 8, 30, "#106EE8", 1, 100, 10);
+  kick = createOrbiter(0, planetBaseSpeed, 8, 150, "#106EE8", 1, 100, 10);
   // create planet kick's moons
   kick.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 2.2, 2, 20, "#0FC1A1", 1)
@@ -49,13 +50,13 @@ function createUniverse(){
 
   // create planet hat
   // second ring
-  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#D3F3C8", 1, 100, 10);
+  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 270, "#37B7B5", 1, 20, 10);
   // create planet kick's moons
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#5A17ED", 1)
+    createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#A0E4E0", 1)
   );
   hat.orbiters.push(
-    createOrbiter(0, planetBaseSpeed * 2, 5, 45, "#FACADE", 1)
+    createOrbiter(0, planetBaseSpeed * 2, 5, 45, "#C7F6F5", 1)
   );
   // set planet kick orbit color
   orbitPathColors.push("#9DE0AD");
@@ -65,7 +66,7 @@ function createUniverse(){
 
   // create planet snare
   // third ring
-  snare = createOrbiter(PI, planetBaseSpeed * 1.4, 16, 210, "#59A27A", 10, 100, 10);
+  snare = createOrbiter(PI, planetBaseSpeed * 1.4, 16, 380, "#59A27A", 10, 20, 10);
   // create planet snare's moons
   snare.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 5, 4, 40, "#FACADE", 1)
@@ -79,7 +80,7 @@ function createUniverse(){
 
   // create planet synth
   // fourth ring
-  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 420, "#A56CC1", 1, 100, 10);
+  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 560, "#A56CC1", 1, 20, 30);
   // create planet synth's moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 2, 6, 50, "#A6ACEC", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 8, 100, "#ACE7EF", 2));
@@ -97,7 +98,7 @@ function createUniverse(){
 
   // create planet bass
   // fifth ring
-  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 50, 700, "#E14242", 1, 100, 10);
+  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 40, 760, "#E14242", 1, 20, 10);
   // create planet bass' moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 1.2, 10, 150, "#EACD65", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 6, 40, "#8D3434", 2));
@@ -112,6 +113,35 @@ function createUniverse(){
   orbitPathColors.push("#2D727F");
   // add planet bass to univ
   univ.push(bass);
+
+
+
+  generateStars(500, 1000, 4);
+
+  // Create black background
+  fill(0, 0, 0, 255);
+  rect(0,0,windowWidth,windowHeight);
+}
+
+
+function generateStars(minimum, maximum, maxRadius){
+  var i, star;
+
+  starMaxRadius = maxRadius;
+
+  i = random(minimum, maximum)
+
+  for(i; i > 0; i--){
+    star = {
+      x: random(windowWidth),
+      y: random(windowHeight),
+      r: random(0.1, starMaxRadius),
+      alpha: random(1, 255)
+    }
+
+    //console.log(star.r, star.y, star.r, star.alpha)
+    stars.push(star);
+  }
 }
 
 //
@@ -128,8 +158,20 @@ function draw() {
   var i, planet, doFlare;
 
 
-  clear();
-  background(0);
+  //clear();
+
+  //draw refresher
+  fill(0, 0, 0, 20)
+  rect(0,0,windowWidth,windowHeight)
+
+  //draw sun
+  fill('#FF9757');
+  ellipse((windowWidth/2), (windowHeight/2), 100, 100);
+
+
+  for (i=0; i < stars.length; i++){
+    drawStar(stars[i]);
+  }
 
   x = windowWidth / 2;
   y = windowHeight / 2;
@@ -138,14 +180,16 @@ function draw() {
     planet = univ[i];
 
     // draw orbit path
-    noFill();
-    stroke(orbitPathColors[i]);
-    strokeWeight(1);
-    drawCircle(x, y, planet.rotationRadius);
+    // noFill();
+    // stroke(orbitPathColors[i]);
+    // strokeWeight(1);
+    // drawCircle(x, y, planet.rotationRadius);
 
 
     // trigger flare
     doFlare = isAtOrbitRotation(PI/2, planet);
+
+    //doFlare = false;      // remove flares for now
 
     // draw planet
     drawOrbiter(x, y, planet, doFlare);
@@ -154,11 +198,38 @@ function draw() {
     // draw planet's orbiters
     drawOrbiters(planet.x, planet.y, planet.orbiters);
   }
+
+
+
+
+
+
+
 }
 
 //
 // Draw Helpers -------------------------------------------------------------------------------
 //
+
+
+function drawStar(star){
+  var multiplier;
+
+  fill(255, 255, 255, star.r);
+  noStroke();
+  drawCircle(star.x, star.y, star.r);
+
+
+  multiplier = 1 + random(-0.1, 0.1);
+  star.r *= multiplier;
+
+  multiplier = 1 + random(-0.1, 0.1);
+  star.a *= multiplier;
+
+  star.r = constrain(star.r, 0.3, starMaxRadius);
+  star.a = constrain(star.a, 50, 255);
+
+}
 
 function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor, strokeWeight, flareDecay, flareMaxLength){
   // initRotation - where to begin

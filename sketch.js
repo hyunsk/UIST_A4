@@ -204,6 +204,8 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
     orbiter.flareMaxLength = flareMaxLength;
   }
 
+  orbiter.particles = new ParticleSystem(createVector(orbiter.x, orbiter.y));
+
   return orbiter;
 }
 
@@ -227,6 +229,10 @@ function drawOrbiter(x, y, orbiter, doFlare){
     orbiter.doFlare = true;
   }
 
+  if (orbiter.doFlare){
+    drawOrbiterFlare(x, y, orbiter);
+  }
+
   fill(orbiter.strokeColor);
   noStroke();
 
@@ -237,9 +243,6 @@ function drawOrbiter(x, y, orbiter, doFlare){
 
   drawCircle(orbiter.x, orbiter.y, orbiter.radius);
 
-  if (orbiter.doFlare){
-    drawOrbiterFlare(x, y, orbiter);
-  }
 }
 
 function updateOrbiterRotation(orbiter){
@@ -264,36 +267,38 @@ function drawOrbiterFlare(x, y, orbiter){
 
   alphaDelta = -1 / orbiter.flareLength;
 
-  flareParticles = new ParticleSystem(createVector(orbiter.x, orbiter.y));
 
-  for (i=0; i< orbiter.flareLength; i++){
-    orbiter.doFlare = false;
+  orbiter.particles.origin.x = orbiter.x;
+  orbiter.particles.origin.y = orbiter.y;
+  orbiter.particles.addParticle();
 
-    orbiter.rotation -= ((orbiter.delta + 2) * 1.4);
-    currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
-
-    orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
-
-    //radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
-
-    //orbiter.radius = orbiter.initRadius * radiusMultiplier;
-
-    //drawOrbiter(x, y, orbiter);
-
-    pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
-
-    orbiter.x = pt.x;
-    orbiter.y = pt.y;
+  orbiter.particles.run();
 
 
-    flareParticles.origin.x = pt.x;
-    flareParticles.origin.y = pt.y;
-
-    flareParticles.addParticle();
-
-
-  }
-  flareParticles.run();
+  //for (i=0; i< orbiter.flareLength; i++){
+  //  orbiter.doFlare = false;
+  //
+  //  orbiter.rotation += (orbiter.delta +2);
+  //  currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
+  //
+  //  orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
+  //
+  //  //radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
+  //
+  //  //orbiter.radius = orbiter.initRadius * radiusMultiplier;
+  //
+  //  //drawOrbiter(x, y, orbiter);
+  //
+  //  pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
+  //
+  //  orbiter.x = pt.x;
+  //  orbiter.y = pt.y;
+  //
+  //
+  //  orbiter.particles.origin.x = pt.x;
+  //  orbiter.particles.origin.y = pt.y;
+  //
+  //}
 
 
   orbiter.rotation = orbiter.initRotation;
@@ -356,10 +361,10 @@ function getAlphaFraction(colorInstance){
 
 // A simple Particle class
 var Particle = function(position) {
-  this.acceleration = createVector(0, 0.05);
+  this.acceleration = createVector(0, -0.10);
   this.velocity = createVector(random(-1, 1), random(-1, 0));
   this.position = position.copy();
-  this.lifespan = 255.0;
+  this.lifespan = 100.0;
 };
 
 Particle.prototype.run = function() {
@@ -378,7 +383,8 @@ Particle.prototype.update = function(){
 Particle.prototype.display = function() {
   stroke(200, this.lifespan);
   strokeWeight(2);
-  fill(127, this.lifespan);
+  noStroke();
+  fill(255, this.lifespan);
   ellipse(this.position.x, this.position.y, 12, 12);
 };
 

@@ -29,7 +29,7 @@ function createUniverse(){
 
   // create planet kick
   // first ring
-  kick = createOrbiter(0, planetBaseSpeed, 8, 30, "#106EE8", 1, 20, 10);
+  kick = createOrbiter(0, planetBaseSpeed, 8, 30, "#106EE8", 1, 100, 10);
   // create planet kick's moons
   kick.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 2.2, 2, 20, "#0FC1A1", 1)
@@ -49,7 +49,7 @@ function createUniverse(){
 
   // create planet hat
   // second ring
-  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#D3F3C8", 1, 20, 10);
+  hat = createOrbiter(PI/2, planetBaseSpeed, 12, 90, "#D3F3C8", 1, 100, 10);
   // create planet kick's moons
   hat.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 3, 3, 30, "#5A17ED", 1)
@@ -65,7 +65,7 @@ function createUniverse(){
 
   // create planet snare
   // third ring
-  snare = createOrbiter(PI, planetBaseSpeed * 1.4, 16, 210, "#59A27A", 10, 20, 10);
+  snare = createOrbiter(PI, planetBaseSpeed * 1.4, 16, 210, "#59A27A", 10, 100, 10);
   // create planet snare's moons
   snare.orbiters.push(
     createOrbiter(0, planetBaseSpeed * 5, 4, 40, "#FACADE", 1)
@@ -79,7 +79,7 @@ function createUniverse(){
 
   // create planet synth
   // fourth ring
-  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 420, "#A56CC1", 1, 20, 30);
+  synth = createOrbiter(3*PI/2, planetBaseSpeed * .5, 30, 420, "#A56CC1", 1, 100, 10);
   // create planet synth's moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 2, 6, 50, "#A6ACEC", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 8, 100, "#ACE7EF", 2));
@@ -97,7 +97,7 @@ function createUniverse(){
 
   // create planet bass
   // fifth ring
-  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 50, 700, "#E14242", 1, 20, 10);
+  bass = createOrbiter(3*PI/2, planetBaseSpeed * 0.2, 50, 700, "#E14242", 1, 100, 10);
   // create planet bass' moons
   tempOrbiter = createOrbiter(3*PI/2, planetBaseSpeed * 1.2, 10, 150, "#EACD65", 3);
   tempOrbiter.orbiters.push(createOrbiter(3*PI/2, planetBaseSpeed * 4, 6, 40, "#8D3434", 2));
@@ -250,16 +250,22 @@ function updateOrbiterRotation(orbiter){
 }
 
 function drawOrbiterFlare(x, y, orbiter){
-  var i, j, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier, flareParticles, pt;
+  var i, j, alphaDelta, currentAlpha, lifeRatio, radiusMultiplier, flareParticles, pt, direction, dx, dy;
 
   orbiter.initRotation = orbiter.rotation;
   orbiter.initStrokeColor = orbiter.strokeColor;
 
   if (orbiter.flareAge >= orbiter.flareDecay){
+    // reset flare
+
     orbiter.doFlare = false;
     orbiter.flareAge = 0;
     orbiter.flareLength = 0;
     orbiter.radius = orbiter.initRadius;
+
+    while(orbiter.particles.particles.length){
+      delete orbiter.particles.particles.pop()
+    }
     return;
   }
 
@@ -270,35 +276,30 @@ function drawOrbiterFlare(x, y, orbiter){
 
   orbiter.particles.origin.x = orbiter.x;
   orbiter.particles.origin.y = orbiter.y;
-  orbiter.particles.addParticle();
+
+  // calculate slope from orbiter to orbit origin
+  dx = x - orbiter.particles.origin.x;
+  dy = y - orbiter.particles.origin.y;
+
+  // scale slope
+  if (abs(dx) > abs(dy)){     // first scale to [-1, 1]
+    dy /= abs(dx);
+    dx /= abs(dx);
+  }else{
+    dx /= abs(dy)
+    dy /= abs(dy);
+  }
+
+  // scale to map function
+  dx = map(dx, -1, 1, -0.1, 0.1);
+  dy = map(dy, -1, 1, -0.1, 0.1);
+
+  // negative inverse for tangent
+  direction = createVector(-dy, dx);
+
+  orbiter.particles.addParticle(direction, orbiter.strokeColor);
 
   orbiter.particles.run();
-
-
-  //for (i=0; i< orbiter.flareLength; i++){
-  //  orbiter.doFlare = false;
-  //
-  //  orbiter.rotation += (orbiter.delta +2);
-  //  currentAlpha = getAlphaFraction(orbiter.strokeColor) + alphaDelta;
-  //
-  //  orbiter.strokeColor = adjustColorAlpha(orbiter.strokeColor, currentAlpha);
-  //
-  //  //radiusMultiplier = (1-pow(lifeRatio - 1, 4) - 3*(lifeRatio - 1)/2);
-  //
-  //  //orbiter.radius = orbiter.initRadius * radiusMultiplier;
-  //
-  //  //drawOrbiter(x, y, orbiter);
-  //
-  //  pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
-  //
-  //  orbiter.x = pt.x;
-  //  orbiter.y = pt.y;
-  //
-  //
-  //  orbiter.particles.origin.x = pt.x;
-  //  orbiter.particles.origin.y = pt.y;
-  //
-  //}
 
 
   orbiter.rotation = orbiter.initRotation;
@@ -360,11 +361,12 @@ function getAlphaFraction(colorInstance){
 // Particle System from example -------------------------------------------------------------------------------
 
 // A simple Particle class
-var Particle = function(position) {
-  this.acceleration = createVector(0, -0.10);
+var Particle = function(position, direction, particleColor) {
+  this.acceleration = direction;
   this.velocity = createVector(random(-1, 1), random(-1, 0));
   this.position = position.copy();
   this.lifespan = 100.0;
+  this.particleColor = particleColor;
 };
 
 Particle.prototype.run = function() {
@@ -381,10 +383,10 @@ Particle.prototype.update = function(){
 
 // Method to display
 Particle.prototype.display = function() {
-  stroke(200, this.lifespan);
-  strokeWeight(2);
+  //stroke(200, this.lifespan);
+  //strokeWeight(2);
   noStroke();
-  fill(255, this.lifespan);
+  fill(adjustColorAlpha(this.particleColor, (this.lifespan / 100)));
   ellipse(this.position.x, this.position.y, 12, 12);
 };
 
@@ -402,8 +404,8 @@ var ParticleSystem = function(position) {
   this.particles = [];
 };
 
-ParticleSystem.prototype.addParticle = function() {
-  this.particles.push(new Particle(this.origin));
+ParticleSystem.prototype.addParticle = function(direction, particleColor) {
+  this.particles.push(new Particle(this.origin, direction, particleColor));
 };
 
 ParticleSystem.prototype.run = function() {

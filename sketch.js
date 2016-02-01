@@ -2,8 +2,7 @@ var planetBaseSpeed = 0;
 var orbitPathColors = [];
 var univ = [];
 var stars = [];
-var starMaxRadius = 6;
-
+var starMaxRadius = null;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -115,7 +114,7 @@ function createUniverse(){
 
 
 
-  generateStars();
+  generateStars(500, 1000, 4);
 
   // Create black background
   fill(0, 0, 0, 255);
@@ -123,12 +122,12 @@ function createUniverse(){
 }
 
 
-function generateStars(){
-  var i, star, count;
+function generateStars(minimum, maximum, maxRadius){
+  var i, star;
 
-  i = random(100, 300)
+  starMaxRadius = maxRadius;
 
-  //console.log(i);
+  i = random(minimum, maximum)
 
   for(i; i > 0; i--){
     star = {

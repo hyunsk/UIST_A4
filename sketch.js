@@ -1,6 +1,8 @@
 var planetBaseSpeed = 0;
 var orbitPathColors = [];
 var univ = [];
+var stars = [];
+var starMaxRadius = 6;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,13 +115,32 @@ function createUniverse(){
 
 
 
+  generateStars();
 
   // Create black background
   fill(0, 0, 0, 255);
   rect(0,0,windowWidth,windowHeight);
+}
 
-  
 
+function generateStars(){
+  var i, star, count;
+
+  i = random(100, 300)
+
+  //console.log(i);
+
+  for(i; i > 0; i--){
+    star = {
+      x: random(windowWidth),
+      y: random(windowHeight),
+      r: random(0.1, starMaxRadius),
+      alpha: random(1, 255)
+    }
+
+    //console.log(star.r, star.y, star.r, star.alpha)
+    stars.push(star);
+  }
 }
 
 //
@@ -147,15 +168,8 @@ function draw() {
   ellipse((windowWidth/2), (windowHeight/2), 100, 100);
 
 
-  // Create stars
-  if (random(10) <= 4) {
-    fill(255, 255, 255);
-    noStroke();
-    var randomX = random(windowWidth);
-    var randomY = random(windowHeight);
-    var randomR = random(0, 4);
-
-    drawCircle(randomX, randomY, randomR);
+  for (i=0; i < stars.length; i++){
+    drawStar(stars[i]);
   }
 
   x = windowWidth / 2;
@@ -193,6 +207,26 @@ function draw() {
 //
 // Draw Helpers -------------------------------------------------------------------------------
 //
+
+
+function drawStar(star){
+  var multiplier;
+
+  fill(255, 255, 255, star.r);
+  noStroke();
+  drawCircle(star.x, star.y, star.r);
+
+
+  multiplier = 1 + random(-0.1, 0.1);
+  star.r *= multiplier;
+
+  multiplier = 1 + random(-0.1, 0.1);
+  star.a *= multiplier;
+
+  star.r = constrain(star.r, 0.3, starMaxRadius);
+  star.a = constrain(star.a, 50, 255);
+
+}
 
 function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor, strokeWeight, flareDecay, flareMaxLength){
   // initRotation - where to begin

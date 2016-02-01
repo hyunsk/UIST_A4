@@ -1,6 +1,8 @@
 var planetBaseSpeed = 0;
 var orbitPathColors = [];
 var univ = [];
+var orbitScaleFactor = 0.6;
+var orbiterSizeScaleFactor = 0.65;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,6 +168,11 @@ function createOrbiter(initRotation, delta, radius, rotationRadius, strokeColor,
   // rotationRadius - distance to center of rotation
   // strokeColor(string) - stroke color of orbiter
   // strokeWeight - stroke weight of orbiter
+
+
+  // scale orbiter's size and rotation radius by global scale factors
+  radius *= orbiterSizeScaleFactor;
+  rotationRadius *= orbitScaleFactor;
 
   var orbiter = {orbiters: []};
   orbiter.initRotation = initRotation;

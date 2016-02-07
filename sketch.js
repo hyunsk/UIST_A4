@@ -43,15 +43,15 @@ function createUniverse(){
     {
       initRotation: 0,
       delta: 4,
-      radius: 2,
-      rotationRadius: 20,
+      radius: 3,
+      rotationRadius: 40,
       color: "#0FC1A1",
       flareDecay: 0
     },
     {
       initRotation: 0,
       delta: 1.8,
-      radius: 3,
+      radius: 2,
       rotationRadius: 25,
       color: "#90E0AB",
       flareDecay: 0
@@ -83,7 +83,7 @@ function createUniverse(){
       initRotation: 0,
       delta: 1,
       radius: 3,
-      rotationRadius: 30,
+      rotationRadius: 50,
       color: "#A0E4E0",
       flareDecay: 0
     },
@@ -353,19 +353,14 @@ function draw() {
     // drawCircle(x, y, planet.rotationRadius);
 
 
-    // trigger flare
-    //doFlare = isAtOrbitRotation(PI/2, planet);
-
-    doFlare = false;      // remove flares for now
-
     // draw planet
-    planet.draw(x, y, doFlare, planet.mute);
+    planet.draw(x, y, false, planet.mute, false);
     planet.updateRotation();
 
     planet.checkPlaySound();
 
     // draw planet's orbiters
-    planet.drawOrbiters(planet.x, planet.y, false, planet.mute);
+    planet.drawOrbiters(planet.x, planet.y, false, planet.mute, planet.doFlare);
   }
 
 }
@@ -432,6 +427,8 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
         p = mapParams(satellite, planet.moons[i]);
         planet.playSound(0.5, 0.5);
         planet.doFlare = true;
+        planet.moons[i].doFlash = true;
+        planet.moons[i].orbiters[0].doFlash = true;
       }
     }
   };
@@ -445,7 +442,9 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
     _.assign(options, satelliteOptions, {rotation: random(0, 2*PI)});
     satellite = createOrbiter(options);
 
-    moon = createOrbiter(moonOptions);
+    _.assign(options, moonOptions, {rotationRadius: moonOptions.rotationRadius * random(1, 2)});
+
+    moon = createOrbiter(options);
     moon.satellites = moon.orbiters;
     moon.orbiters.push(satellite);
     planet.orbiters.push(moon);
@@ -490,7 +489,8 @@ function createOrbiter(options){
     particles: new ParticleSystem(createVector(orbiter.x, orbiter.y)),
     orbiters: [],
     x: 0,
-    y: 0
+    y: 0,
+    doFlash: false
   };
   override = {
     radius: options.radius * orbiterSizeScaleFactor,        // scale orbiter's size and rotation radius by global scale factors
@@ -526,10 +526,14 @@ function createOrbiter(options){
       orbiter.drawFlare(x, y);
     }
 
+    fill(orbiter.color);
+
     if (grayscale){
       fill("rgb(200, 200, 200)");
-    }else{
-      fill(orbiter.color);
+    }
+
+    if (orbiter.doFlash){
+      fill("rgb(250, 250, 250)");
     }
 
     noStroke();
@@ -554,6 +558,12 @@ function createOrbiter(options){
       orbiter.doFlare = false;
       orbiter.flareAge = 0;
       orbiter.radius = orbiter.initRadius;
+
+
+      for(var i=0; i< orbiter.orbiters.length; i++){
+        orbiter.orbiters[i].doFlash = false;
+        orbiter.orbiters[i].orbiters[0].doFlash = false;
+      }
 
       while(orbiter.particles.particles.length){
         delete orbiter.particles.particles.pop()

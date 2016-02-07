@@ -253,23 +253,30 @@ function generateStars(minimum, maximum, maxRadius){
 function keyPressed() {
   switch(key){
     case "Q":
-      univ[0].createMoonAndSatellite()
+      if (!univ[0].mute){
+        univ[0].createMoonAndSatellite();
+      }
       break;
     case "W":
-      univ[1].createMoonAndSatellite()
+      if (!univ[1].mute) {
+        univ[1].createMoonAndSatellite();
+      }
       break;
     case "E":
-      univ[2].createMoonAndSatellite()
+      if (!univ[2].mute) {
+        univ[2].createMoonAndSatellite();
+      }
       break;
     case "R":
-      univ[3].createMoonAndSatellite()
+      if (!univ[3].mute) {
+        univ[3].createMoonAndSatellite();
+      }
       break;
     case "T":
-      univ[4].createMoonAndSatellite()
+      if (!univ[4].mute) {
+        univ[4].createMoonAndSatellite()
+      }
       break;
-  }
-
-  switch(key){
     case "A":
       univ[0].mute = !univ[0].mute;
       break;
@@ -285,9 +292,6 @@ function keyPressed() {
     case "G":
       univ[4].mute = !univ[4].mute;
       break;
-  }
-
-  switch(key){
     case "Z":
       univ[0].clearMoonsAndSatellites();
       break;
@@ -355,13 +359,13 @@ function draw() {
     doFlare = false;      // remove flares for now
 
     // draw planet
-    planet.draw(x, y, doFlare);
+    planet.draw(x, y, doFlare, planet.mute);
     planet.updateRotation();
 
     planet.checkPlaySound();
 
     // draw planet's orbiters
-    planet.drawOrbiters(planet.x, planet.y, false);
+    planet.drawOrbiters(planet.x, planet.y, false, planet.mute);
   }
 
 }
@@ -498,20 +502,20 @@ function createOrbiter(options){
   _.assign(orbiter, defaults, options, override);
 
 
-  orbiter.drawOrbiters = function(x, y, doFlare){
+  orbiter.drawOrbiters = function(x, y, doFlare, grayscale){
     var i, currentOrbiter;
     for (i = 0; i< orbiter.orbiters.length; i++){
       currentOrbiter = orbiter.orbiters[i];
-      currentOrbiter.draw(x, y, doFlare);
+      currentOrbiter.draw(x, y, doFlare, grayscale);
       currentOrbiter.updateRotation();
 
       if (currentOrbiter.orbiters.length){
-        currentOrbiter.drawOrbiters(currentOrbiter.x, currentOrbiter.y, false)
+        currentOrbiter.drawOrbiters(currentOrbiter.x, currentOrbiter.y, false, grayscale)
       }
     }
   };
 
-  orbiter.draw = function(x, y, doFlare){
+  orbiter.draw = function(x, y, doFlare, grayscale){
     var pt;
 
     if (doFlare){
@@ -522,7 +526,12 @@ function createOrbiter(options){
       orbiter.drawFlare(x, y);
     }
 
-    fill(orbiter.color);
+    if (grayscale){
+      fill("rgb(200, 200, 200)");
+    }else{
+      fill(orbiter.color);
+    }
+
     noStroke();
 
     pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);

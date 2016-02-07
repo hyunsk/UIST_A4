@@ -5,6 +5,16 @@ var starMaxRadius = null;
 var orbitScaleFactor = 1;
 var orbiterSizeScaleFactor = 1;
 var planetBaseSpeed = null;
+//modulator stuff
+var carrier; // this is the oscillator we will hear
+var modulator; // this oscillator will modulate the frequency of the carrier
+var analyzer; // we'll use this visualize the waveform 
+var carrierBaseFreq = 250;
+var modMaxFreq = 0;
+var modMinFreq = 0;
+var modMaxDepth = 200;
+var modMinDepth = -200;
+var isPaused = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -15,6 +25,19 @@ function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
   createUniverse();
 
+  carrier = new p5.Oscillator('sine');
+  carrier.amp(0); // set amplitude
+  carrier.freq(carrierBaseFreq); // set frequency
+  carrier.start(); // start oscillating
+
+  // try changing the type to 'square', 'sine' or 'triangle'
+  modulator = new p5.Oscillator('sawtooth');
+  modulator.start();
+
+  // add the modulator's output to modulate the carrier's frequency
+  modulator.disconnect();
+  carrier.freq( modulator );
+  carrier.amp(1.0, 0.01);
 }
 
 //
@@ -251,6 +274,7 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
+  debugger
   switch(key){
     case "Q":
       univ[0].createMoonAndSatellite()
@@ -266,6 +290,9 @@ function keyPressed() {
       break;
     case "T":
       univ[4].createMoonAndSatellite()
+      break;
+    case " ":
+      pauseScreen();
       break;
   }
 }
@@ -328,7 +355,12 @@ function draw() {
     planet.drawOrbiters(planet.x, planet.y, false);
   }
 
-  frameRate();
+  var modFreq = map(univ[1].y * 2, height, 0, modMinFreq, modMaxFreq);
+  modulator.freq(modFreq);
+
+  var modDepth = map(univ[1].x * 2, 0, width, modMinDepth, modMaxDepth);
+  modulator.amp(modDepth);
+
 
 }
 
@@ -647,6 +679,25 @@ ParticleSystem.prototype.run = function() {
 //
 // Sounds
 //
+
+
+function pauseScreen() {
+    if (isPaused == false) 
+    {
+      isPaused = true;
+      noLoop();
+        carrier.amp(0, 0.01);
+        fill(random(0,255),random(0,255),random(0,255))
+        rect(0,0, windowWidth, windowHeight);
+    }
+    else
+    {
+      isPaused = false;
+      loop();
+        carrier.amp(1.0, 0.01);
+    }
+}
+
 
 // Create hat
 function playHat(pA, pB) {

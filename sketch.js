@@ -14,7 +14,7 @@ var planetBaseSpeed = null;
 function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
   createUniverse();
-
+  frameRate(60);
 }
 
 //
@@ -42,7 +42,7 @@ function createUniverse(){
     },
     {
       initRotation: 0,
-      delta: 2.2,
+      delta: 4,
       radius: 2,
       rotationRadius: 20,
       color: "#0FC1A1",
@@ -81,7 +81,7 @@ function createUniverse(){
     },
     {
       initRotation: 0,
-      delta: 3,
+      delta: 4,
       radius: 3,
       rotationRadius: 30,
       color: "#A0E4E0",
@@ -117,7 +117,7 @@ function createUniverse(){
     },
     {
       initRotation: 0,
-      delta: 5,
+      delta:4,
       radius: 4,
       rotationRadius: 40,
       color: "#FACADE",
@@ -153,7 +153,7 @@ function createUniverse(){
     },
     {
       initRotation: 3*PI/2,
-      delta: 2,
+      delta: 4,
       radius: 6,
       rotationRadius: 50,
       color: "#A6ACEC",
@@ -187,7 +187,7 @@ function createUniverse(){
     },
     {
       initRotation: 3*PI/2,
-      delta: 1.2,
+      delta: 4,
       radius: 10,
       rotationRadius: 150,
       color: "#EACD65",
@@ -363,8 +363,6 @@ function draw() {
     // draw planet's orbiters
     planet.drawOrbiters(planet.x, planet.y, false);
   }
-
-  frameRate();
 
 }
 

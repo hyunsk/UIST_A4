@@ -391,7 +391,7 @@ function drawStar(star){
 }
 
 function createPlanet(options, moonOptions, satelliteOptions, playSound){
-  var planet, triggerRotation;
+  var planet, triggerRotation, mapParams;
 
   triggerRotation = PI;
 
@@ -403,16 +403,31 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
   planet.mute = false;
   planet.playSound = playSound;
 
+  mapParams = function(satellite, moon){
+    var dx, dy;
+    var max = satellite.rotationRadius;
+
+    dx = (moon.x - satellite.x);
+    dy = (moon.y - satellite.y);
+
+    dx = map(dx, -max, max, 0, 1);
+    dy = map(dy, -max, max, 0, 1);
+    return({a: dx, b: dy});
+  }
+
 
   planet.checkPlaySound = function(){
-    var satellite, i;
+    var satellite, i, p;
     for(i= 0; i<planet.moons.length; i++){
       if (planet.mute){
         continue;
       }
       if (isAtOrbitRotation(triggerRotation, planet.moons[i])){
         satellite = planet.moons[i].orbiters[0];
-        planet.playSound(0, 0);
+
+        p = mapParams(satellite, planet.moons[i]);
+        planet.playSound(0.5, 0.5);
+        planet.doFlare = true;
       }
     }
   };
@@ -716,7 +731,6 @@ function playHat(pA, pB) {
 
 // Create kick
 function playKick(pA, pB) {
-
   function sub1() {
  
     var noise, env;
@@ -777,7 +791,7 @@ function playKick(pA, pB) {
     env.play(noise);
   }
 
-    sub1();
+  sub1();
   //sub2();
   noise1();
 }

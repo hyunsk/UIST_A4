@@ -31,45 +31,34 @@ function createUniverse(){
 
   // create planet kick
   // first ring
-  kick = createOrbiter({
-    initRotation: 0,
-    delta: 1,
-    radius: 8,
-    rotationRadius: 150,
-    color: "#106EE8",
-    flareDecay: 10
-  });
-  // create planet kick's moons
-  kick.orbiters.push(
-    createOrbiter({
+  kick = createPlanet(
+    {
+      initRotation: 0,
+      delta: 1,
+      radius: 8,
+      rotationRadius: 150,
+      color: "#106EE8",
+      flareDecay: 10
+    },
+    {
       initRotation: 0,
       delta: 2.2,
       radius: 2,
       rotationRadius: 20,
       color: "#0FC1A1",
-      flareDecay: 1
-    })
-  );
-  kick.orbiters.push(
-    createOrbiter({
+      flareDecay: 0
+    },
+    {
       initRotation: 0,
       delta: 1.8,
       radius: 3,
       rotationRadius: 25,
       color: "#90E0AB",
-      flareDecay: 1
-    })
-  );
-
-  kick.orbiters.push(
-    createOrbiter({
-      initRotation: 0,
-      delta: 1,
-      radius: 1,
-      rotationRadius: 32,
-      color: "#CBFFCE",
-      flareDecay: 1
-    })
+      flareDecay: 0
+    },
+    function(pA, pB){
+      console.log("play kick", pA, pB);
+    }
   );
 
   // set planet kick orbit color
@@ -80,36 +69,36 @@ function createUniverse(){
 
   // create planet hat
   // second ring
-  hat = createOrbiter({
-    initRotation: PI/2,
-    delta: 1,
-    radius: 12,
-    rotationRadius: 270,
-    color: "#37B7B5",
-    flareDecay: 10
-  });
-
-  // create planet kick's moons
-  hat.orbiters.push(
-    createOrbiter({
+  hat = createPlanet(
+    {
+      initRotation: PI/2,
+      delta: 1,
+      radius: 12,
+      rotationRadius: 270,
+      color: "#37B7B5",
+      flareDecay: 10
+    },
+    {
       initRotation: 0,
       delta: 3,
       radius: 3,
       rotationRadius: 30,
       color: "#A0E4E0",
       flareDecay: 0
-    })
-  );
-  hat.orbiters.push(
-    createOrbiter({
+    },
+    {
       initRotation: 0,
       delta: 2,
-      radius: 5,
-      rotationRadius: 45,
+      radius: 1,
+      rotationRadius: 15,
       color: "#C7F6F5",
       flareDecay: 0
-    })
+    },
+    function(pA, pB){
+      console.log("play hat", pA, pB);
+    }
   );
+
   // set planet kick orbit color
   orbitPathColors.push("#9DE0AD");
   // add planet kick to univ
@@ -118,24 +107,34 @@ function createUniverse(){
 
   // create planet snare
   // third ring
-  snare = createOrbiter({
-    initRotation: PI,
-    delta: 1.4,
-    radius: 16,
-    rotationRadius: 380,
-    color: "#59A27A",
-    flareDecay: 10
-  });
-  // create planet snare's moons
-  snare.orbiters.push(
-    createOrbiter({
+  snare = createPlanet(
+    {
+      initRotation: PI,
+      delta: 1.4,
+      radius: 16,
+      rotationRadius: 380,
+      color: "#59A27A",
+      flareDecay: 10
+    },
+    {
       initRotation: 0,
       delta: 5,
       radius: 4,
       rotationRadius: 40,
       color: "#FACADE",
       flareDecay: 0
-    })
+    },
+    {
+      initRotation: 0,
+      delta: 5,
+      radius: 4,
+      rotationRadius: 20,
+      color: "#FACADE",
+      flareDecay: 0
+    },
+    function(pA, pB){
+      console.log("play hat", pA, pB);
+    }
   );
 
   // set planet snare's orbit color
@@ -146,48 +145,36 @@ function createUniverse(){
 
   // create planet synth
   // fourth ring
-  synth = createOrbiter({
-    initRotation: 3*PI/2,
-    delta: 0.5,
-    radius: 30,
-    rotationRadius: 560,
-    color: "#A56CC1",
-    flareDecay: 35
-  });
-
-  // create planet synth's moons
-  tempOrbiter = createOrbiter({
-    initRotation: 3*PI/2,
-    delta: 2,
-    radius: 6,
-    rotationRadius: 50,
-    color: "#A6ACEC",
-    flareDecay: 0
-  });
-
-  tempOrbiter.orbiters.push(
-    createOrbiter({
+  synth = createPlanet(
+    {
+      initRotation: 3*PI/2,
+      delta: 0.5,
+      radius: 30,
+      rotationRadius: 560,
+      color: "#A56CC1",
+      flareDecay: 35
+    },
+    {
+      initRotation: 3*PI/2,
+      delta: 2,
+      radius: 6,
+      rotationRadius: 50,
+      color: "#A6ACEC",
+      flareDecay: 0
+    },
+    {
       initRotation: 3*PI/2,
       delta: 4,
       radius: 8,
       rotationRadius: 100,
       color: "#ACE7EF",
       flareDecay: 0
-    })
+    },
+    function(pA, pB){
+      console.log("play hat", pA, pB);
+    }
   );
 
-  synth.orbiters.push(tempOrbiter);
-
-  synth.orbiters.push(
-    createOrbiter({
-      initRotation: 0,
-      delta: 2.5,
-      radius: 12,
-      rotationRadius: 120,
-      color: "#ACE7EF",
-      flareDecay: 0
-    })
-  );
   // set planet synth orbit color
   orbitPathColors.push("#547980");
   // add planet synth to univ
@@ -195,49 +182,35 @@ function createUniverse(){
 
   // create planet bass
   // fifth ring
-  bass = createOrbiter({
+  bass = createPlanet({
       initRotation: 3*PI/2,
       delta: 0.2,
       radius: 40,
       rotationRadius: 760,
       color: "#E14242",
       flareDecay: 40
-  });
-
-  // create planet bass' moons
-  tempOrbiter = createOrbiter({
-    initRotation: 3*PI/2,
-    delta: 1.2,
-    radius: 10,
-    rotationRadius: 150,
-    color: "#EACD65",
-    flareDecay: 0
-  });
-
-  tempOrbiter.orbiters.push(
-    createOrbiter({
+    },
+    {
+      initRotation: 3*PI/2,
+      delta: 1.2,
+      radius: 10,
+      rotationRadius: 150,
+      color: "#EACD65",
+      flareDecay: 0
+    },
+    {
       initRotation: 3*PI/2,
       delta: 4,
       radius: 6,
       rotationRadius: 40,
       color: "#8D3434",
       flareDecay: 0
-    })
+    },
+    function(pA, pB){
+      console.log("play hat", pA, pB);
+    }
   );
 
-  bass.orbiters.push(
-    tempOrbiter
-  );
-  bass.orbiters.push(
-    createOrbiter({
-      initRotation: 0,
-      delta: 1,
-      radius: 10,
-      rotationRadius: 80,
-      color: "#EBEBCD",
-      flareDecay: 0
-    })
-  );
   // set planet bass' orbit color
   orbitPathColors.push("#2D727F");
   // add planet bass to univ
@@ -275,6 +248,38 @@ function generateStars(minimum, maximum, maxRadius){
 // Setup
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Input
+//
+
+function keyPressed() {
+  switch(key){
+    case "Q":
+      univ[0].createMoonAndSatellite()
+      break;
+    case "W":
+      univ[1].createMoonAndSatellite()
+      break;
+    case "E":
+      univ[2].createMoonAndSatellite()
+      break;
+    case "R":
+      univ[3].createMoonAndSatellite()
+      break;
+    case "T":
+      univ[4].createMoonAndSatellite()
+      break;
+  }
+}
+
+//
+// Input
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -314,21 +319,19 @@ function draw() {
 
 
     // trigger flare
-    doFlare = isAtOrbitRotation(PI/2, planet);
+    //doFlare = isAtOrbitRotation(PI/2, planet);
 
-    //doFlare = false;      // remove flares for now
+    doFlare = false;      // remove flares for now
 
     // draw planet
     planet.draw(x, y, doFlare);
     planet.updateRotation();
 
+    planet.checkPlaySound();
+
     // draw planet's orbiters
     planet.drawOrbiters(planet.x, planet.y, false);
   }
-
-
-
-
 
   frameRate();
 
@@ -356,6 +359,48 @@ function drawStar(star){
   star.r = constrain(star.r, 0.3, starMaxRadius);
   star.a = constrain(star.a, 50, 255);
 
+}
+
+function createPlanet(options, moonOptions, satelliteOptions, playSound){
+  var i, planet, triggerRotation;
+
+  planet = createOrbiter(options);
+  planet.moons = planet.orbiters;
+
+  triggerRotation = PI;
+
+
+  _.assign(moonOptions, {rotation: triggerRotation});
+
+
+  planet.playSound = playSound;
+
+
+  planet.checkPlaySound = function(){
+    var satellite;
+    for(i= 0; i<planet.moons.length; i++){
+      if (isAtOrbitRotation(triggerRotation, planet.moons[i])){
+        satellite = planet.moons[i].orbiters[0];
+        planet.playSound(0, 0);
+      }
+    }
+  };
+
+  planet.createMoonAndSatellite = function(){
+    var options;
+    var satellite;
+    var moon;
+
+    options = {}
+    _.assign(options, satelliteOptions, {rotation: random(0, 2*PI)});
+    satellite = createOrbiter(options)
+    moon = createOrbiter(moonOptions);
+    moon.satellites = moon.orbiters;
+    moon.orbiters.push(satellite);
+    planet.orbiters.push(moon);
+  };
+
+  return planet;
 }
 
 function createOrbiter(options){
@@ -498,7 +543,7 @@ function drawCircle(x, y, r) {
 function isAtOrbitRotation(targetRotation, orbiter){
   // normalize rotation
   orbiter.rotation = orbiter.rotation % TWO_PI;
-
+  
   if ((orbiter.rotation > targetRotation) || (orbiter.rotation + orbiter.delta < targetRotation)){
     return false;
   }

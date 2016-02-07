@@ -273,6 +273,42 @@ function keyPressed() {
       univ[4].createMoonAndSatellite()
       break;
   }
+
+  switch(key){
+    case "A":
+      univ[0].mute = !univ[0].mute;
+      break;
+    case "S":
+      univ[1].mute = !univ[1].mute;
+      break;
+    case "D":
+      univ[2].mute = !univ[2].mute;
+      break;
+    case "F":
+      univ[3].mute = !univ[3].mute;
+      break;
+    case "G":
+      univ[4].mute = !univ[4].mute;
+      break;
+  }
+
+  switch(key){
+    case "Z":
+      univ[0].clearMoonsAndSatellites();
+      break;
+    case "X":
+      univ[1].clearMoonsAndSatellites();
+      break;
+    case "C":
+      univ[2].clearMoonsAndSatellites();
+      break;
+    case "V":
+      univ[3].clearMoonsAndSatellites();
+      break;
+    case "B":
+      univ[4].clearMoonsAndSatellites();
+      break;
+  }
 }
 
 //
@@ -362,23 +398,25 @@ function drawStar(star){
 }
 
 function createPlanet(options, moonOptions, satelliteOptions, playSound){
-  var i, planet, triggerRotation;
-
-  planet = createOrbiter(options);
-  planet.moons = planet.orbiters;
+  var planet, triggerRotation;
 
   triggerRotation = PI;
 
-
+  planet = createOrbiter(options);
+  planet.moons = planet.orbiters;
   _.assign(moonOptions, {rotation: triggerRotation});
 
 
+  planet.mute = false;
   planet.playSound = playSound;
 
 
   planet.checkPlaySound = function(){
-    var satellite;
+    var satellite, i;
     for(i= 0; i<planet.moons.length; i++){
+      if (planet.mute){
+        continue;
+      }
       if (isAtOrbitRotation(triggerRotation, planet.moons[i])){
         satellite = planet.moons[i].orbiters[0];
         planet.playSound(0, 0);
@@ -399,6 +437,17 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
     moon.orbiters.push(satellite);
     planet.orbiters.push(moon);
   };
+
+  planet.clearMoonsAndSatellites = function(){
+    var moon;
+    while(planet.moons.length > 0){
+      moon = planet.moons.pop();
+      while(moon.satellites.length > 0){
+        delete moon.satellites.pop();
+      }
+      delete moon;
+    }
+  }
 
   return planet;
 }
@@ -543,7 +592,7 @@ function drawCircle(x, y, r) {
 function isAtOrbitRotation(targetRotation, orbiter){
   // normalize rotation
   orbiter.rotation = orbiter.rotation % TWO_PI;
-  
+
   if ((orbiter.rotation > targetRotation) || (orbiter.rotation + orbiter.delta < targetRotation)){
     return false;
   }

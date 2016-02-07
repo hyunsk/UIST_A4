@@ -57,7 +57,8 @@ function createUniverse(){
       flareDecay: 0
     },
     function(pA, pB){
-      console.log("play kick", pA, pB);
+      
+      playKick(pA, pB);
     }
   );
 
@@ -94,9 +95,7 @@ function createUniverse(){
       color: "#C7F6F5",
       flareDecay: 0
     },
-    function(pA, pB){
-      console.log("play hat", pA, pB);
-    }
+    playHat
   );
 
   // set planet kick orbit color
@@ -132,9 +131,7 @@ function createUniverse(){
       color: "#FACADE",
       flareDecay: 0
     },
-    function(pA, pB){
-      console.log("play hat", pA, pB);
-    }
+    playHat
   );
 
   // set planet snare's orbit color
@@ -170,9 +167,7 @@ function createUniverse(){
       color: "#ACE7EF",
       flareDecay: 0
     },
-    function(pA, pB){
-      console.log("play hat", pA, pB);
-    }
+    playKick
   );
 
   // set planet synth orbit color
@@ -647,3 +642,95 @@ ParticleSystem.prototype.run = function() {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Sounds
+//
+
+// Create hat
+function playHat(pA, pB) {
+
+  var noise, env;
+
+  noise = new p5.Noise(); // other types include 'brown' and 'pink'
+  noise.start();
+
+  // multiply noise volume by 0
+  // (keep it quiet until we're ready to make noise!)
+  noise.amp(0);
+
+  // set attackTime, decayTime, sustainRatio, releaseTime
+  env = new p5.Env(0.001, pA, pB, 0.1);
+
+  // play noise
+  env.play(noise);
+}
+
+// Create kick
+function playKick(pA, pB) {
+
+  function sub1() {
+ 
+    var noise, env;
+    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
+    osc.setType('sine');
+    osc.freq(100+(80*pA));
+    osc.amp(0);
+    osc.start();
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    osc.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env(0.001, 1, pB, .5);
+
+    // play noise
+    env.play(osc);
+  }
+
+  function sub2() {
+ 
+    var noise, env, freq;
+
+    freqEnvelope = new p5.Env(0.1, 1, 1, 1)
+
+    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
+    osc.setType('sine');
+    osc.freq(freqEnvelope.decayTime);
+    osc.amp(0);
+    osc.start();
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    osc.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env(0.001, .5, .5, 0.1);
+
+    // play noise
+    env.play(osc);
+  }
+
+  function noise1() {
+    var noise, env;
+
+    noise = new p5.Noise(); // other types include 'brown' and 'pink'
+    noise.start();
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    noise.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env(0.001, .2, .001, 0.1);
+
+    // play noise
+    env.play(noise);
+  }
+
+    sub1();
+  //sub2();
+  noise1();
+}

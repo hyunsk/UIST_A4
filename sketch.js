@@ -81,7 +81,7 @@ function createUniverse(){
     },
     {
       initRotation: 0,
-      delta: 4,
+      delta: 1,
       radius: 3,
       rotationRadius: 30,
       color: "#A0E4E0",
@@ -117,7 +117,7 @@ function createUniverse(){
     },
     {
       initRotation: 0,
-      delta:4,
+      delta:2,
       radius: 4,
       rotationRadius: 40,
       color: "#FACADE",
@@ -153,7 +153,7 @@ function createUniverse(){
     },
     {
       initRotation: 3*PI/2,
-      delta: 4,
+      delta: 1,
       radius: 6,
       rotationRadius: 50,
       color: "#A6ACEC",
@@ -187,7 +187,7 @@ function createUniverse(){
     },
     {
       initRotation: 3*PI/2,
-      delta: 4,
+      delta: 1,
       radius: 10,
       rotationRadius: 150,
       color: "#EACD65",
@@ -439,7 +439,8 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
 
     options = {}
     _.assign(options, satelliteOptions, {rotation: random(0, 2*PI)});
-    satellite = createOrbiter(options)
+    satellite = createOrbiter(options);
+
     moon = createOrbiter(moonOptions);
     moon.satellites = moon.orbiters;
     moon.orbiters.push(satellite);
@@ -495,6 +496,7 @@ function createOrbiter(options){
     initColor: orbiterColor
   }
   _.assign(orbiter, defaults, options, override);
+
 
   orbiter.drawOrbiters = function(x, y, doFlare){
     var i, currentOrbiter;

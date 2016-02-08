@@ -11,10 +11,23 @@ var planetBaseSpeed = null;
 // Setup
 //
 
+function rotationDelta(bpm, fps){
+  var beats, spb, revTime, frames;
+
+  beats = 16 * 4;
+  spb = 60 / bpm;
+  revTime = spb * beats;
+  frames = revTime * fps;
+
+  return (2 * PI / frames);
+}
+
 function setup() {
+  planetBaseSpeed = rotationDelta(110, 60);
+  frameRate(60);
+
   createCanvas(windowWidth, windowHeight); // Use the full browser window
   createUniverse();
-  frameRate(60);
 }
 
 //
@@ -26,8 +39,6 @@ function createUniverse(){
   var tempOrbiter;
   var x = windowWidth / 2;
   var y = windowHeight / 2;
-
-  planetBaseSpeed = PI  / 200;
 
   // create planet kick
   // first ring
@@ -41,8 +52,8 @@ function createUniverse(){
       flareDecay: 10
     },
     {
-      initRotation: 0,
-      delta: 4,
+      initRotation: PI,
+      delta: 16,
       radius: 3,
       rotationRadius: 40,
       color: "#0FC1A1",
@@ -56,10 +67,7 @@ function createUniverse(){
       color: "#90E0AB",
       flareDecay: 0
     },
-    function(pA, pB){
-      
-      playKick(pA, pB);
-    }
+    createKick
   );
 
   // set planet kick orbit color
@@ -73,15 +81,15 @@ function createUniverse(){
   hat = createPlanet(
     {
       initRotation: PI/2,
-      delta: 1,
+      delta: 4,
       radius: 12,
       rotationRadius: 270,
       color: "#37B7B5",
       flareDecay: 10
     },
     {
-      initRotation: 0,
-      delta: 1,
+      initRotation: PI,
+      delta: 16,
       radius: 3,
       rotationRadius: 50,
       color: "#A0E4E0",
@@ -95,7 +103,7 @@ function createUniverse(){
       color: "#C7F6F5",
       flareDecay: 0
     },
-    playHat
+    createHat
   );
 
   // set planet kick orbit color
@@ -109,14 +117,14 @@ function createUniverse(){
   snare = createPlanet(
     {
       initRotation: PI,
-      delta: 1.4,
+      delta: 4,
       radius: 16,
       rotationRadius: 380,
       color: "#59A27A",
       flareDecay: 10
     },
     {
-      initRotation: 0,
+      initRotation: PI,
       delta:2,
       radius: 4,
       rotationRadius: 40,
@@ -131,7 +139,7 @@ function createUniverse(){
       color: "#FACADE",
       flareDecay: 0
     },
-    playHat
+    createHat
   );
 
   // set planet snare's orbit color
@@ -145,14 +153,14 @@ function createUniverse(){
   synth = createPlanet(
     {
       initRotation: 3*PI/2,
-      delta: 0.5,
+      delta: 2,
       radius: 30,
       rotationRadius: 560,
       color: "#A56CC1",
       flareDecay: 35
     },
     {
-      initRotation: 3*PI/2,
+      initRotation: PI,
       delta: 1,
       radius: 6,
       rotationRadius: 50,
@@ -167,7 +175,7 @@ function createUniverse(){
       color: "#ACE7EF",
       flareDecay: 0
     },
-    playKick
+    createKick
   );
 
   // set planet synth orbit color
@@ -179,14 +187,14 @@ function createUniverse(){
   // fifth ring
   bass = createPlanet({
       initRotation: 3*PI/2,
-      delta: 0.2,
+      delta: 2,
       radius: 40,
       rotationRadius: 760,
       color: "#E14242",
       flareDecay: 40
     },
     {
-      initRotation: 3*PI/2,
+      initRotation: PI,
       delta: 1,
       radius: 10,
       rotationRadius: 150,
@@ -201,9 +209,7 @@ function createUniverse(){
       color: "#8D3434",
       flareDecay: 0
     },
-    function(pA, pB){
-      console.log("play hat", pA, pB);
-    }
+    createKick
   );
 
   // set planet bass' orbit color
@@ -389,7 +395,7 @@ function drawStar(star){
 
 }
 
-function createPlanet(options, moonOptions, satelliteOptions, playSound){
+function createPlanet(options, moonOptions, satelliteOptions, sound){
   var planet, triggerRotation, mapParams;
 
   triggerRotation = PI;
@@ -400,7 +406,7 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
 
 
   planet.mute = false;
-  planet.playSound = playSound;
+  planet.sound = sound();
 
   mapParams = function(satellite, moon){
     var dx, dy;
@@ -425,7 +431,7 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
         satellite = planet.moons[i].orbiters[0];
 
         p = mapParams(satellite, planet.moons[i]);
-        planet.playSound(0.5, 0.5);
+        planet.sound.play(p.a, p.b);
         planet.doFlare = true;
         planet.moons[i].doFlash = true;
         planet.moons[i].orbiters[0].doFlash = true;
@@ -433,7 +439,7 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
     }
   };
 
-  planet.createMoonAndSatellite = function(){
+  planet.createMoonAndSatellite = function(rotation){
     var options;
     var satellite;
     var moon;
@@ -443,6 +449,7 @@ function createPlanet(options, moonOptions, satelliteOptions, playSound){
     satellite = createOrbiter(options);
 
     _.assign(options, moonOptions, {rotationRadius: moonOptions.rotationRadius * random(1, 2)});
+
 
     moon = createOrbiter(options);
     moon.satellites = moon.orbiters;
@@ -732,7 +739,7 @@ ParticleSystem.prototype.run = function() {
 //
 
 // Create hat
-function playHat(pA, pB) {
+function createHat() {
 
   var noise, env;
 
@@ -744,32 +751,48 @@ function playHat(pA, pB) {
   noise.amp(0);
 
   // set attackTime, decayTime, sustainRatio, releaseTime
-  env = new p5.Env(0.001, pA, pB, 0.1);
+  env = new p5.Env();
 
-  // play noise
-  env.play(noise);
+  return {
+    play: function(pA, pB){
+      env.set(0.001, pA, pB * 0.25, 0.1);
+      env.play(noise);
+    },
+    destroy: function(){
+      noise.stop();
+      env.stop();
+
+      delete noise;
+      delete env;
+    }
+  }
 }
 
 // Create kick
-function playKick(pA, pB) {
+function createKick() {
   function sub1() {
  
     var noise, env;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
     osc.setType('sine');
-    osc.freq(100+(80*pA));
-    osc.amp(0);
-    osc.start();
 
     // multiply noise volume by 0
     // (keep it quiet until we're ready to make noise!)
     osc.amp(0);
 
     // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env(0.001, 1, pB, .5);
+    env = new p5.Env();
 
     // play noise
-    env.play(osc);
+
+    return{
+      play: function(pA, pB){
+        osc.freq(100+(80*pA));
+        osc.start();
+        env.set(0.001, 1, pB, 0.5);
+        env.play(osc);
+      }
+    }
   }
 
   function sub2() {
@@ -809,10 +832,29 @@ function playKick(pA, pB) {
     env = new p5.Env(0.001, .2, .001, 0.1);
 
     // play noise
-    env.play(noise);
+    return {
+      play: function(pA, pB){
+        env.play(noise);
+      }
+    }
   }
 
-  sub1();
-  //sub2();
-  noise1();
+  subInst = sub1();
+  noiseInst = noise1();
+  ////sub2();
+  //noise1();
+
+  return {
+    play: function(pA, pB){
+      subInst.play(pA, pB);
+      noiseInst.play(pA, pB);
+    },
+    destroy: function(){
+      noise.stop();
+      env.stop();
+
+      delete noise;
+      delete env;
+    }
+  }
 }

@@ -791,6 +791,7 @@ function createKick() {
 
     return{
       play: function(pA, pB){
+        console.log("sub1 kick1")
         osc.freq(100+(80*pA));
         osc.start();
         env.set(0.001, 1, pB, 0.5);
@@ -799,28 +800,6 @@ function createKick() {
     }
   }
 
-  function sub2() {
- 
-    var env, osc;
-
-    freqEnvelope = new p5.Env(0.1, 1, 1, 1)
-
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('sine');
-    osc.freq(freqEnvelope.decayTime);
-    osc.amp(0);
-    osc.start();
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    osc.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env(0.001, .5, .5, 0.1);
-
-    // play noise
-    env.play(osc);
-  }
 
   function noise1() {
     var noise, env;
@@ -838,19 +817,20 @@ function createKick() {
     // play noise
     return {
       play: function(pA, pB){
+        console.log("noise1 kick1")
         env.play(noise);
       }
     }
   }
 
-  subInst = sub1();
-  noiseInst = noise1();
+  var subInst = sub1();
+  var noiseInst = noise1();
   ////sub2();
   //noise1();
 
   return {
     play: function(pA, pB){
-      console.log("play kick")
+      console.log("play kick1")
       subInst.play(pA, pB);
       noiseInst.play(pA, pB);
     },
@@ -867,7 +847,9 @@ function createKick() {
 
 // Create kick
 function createKick2() {
-  function sub1() {
+
+  var subInst, noiseInst, subInst2;
+  function sub3() {
 
     var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
@@ -892,9 +874,10 @@ function createKick2() {
     }
   }
 
-  function sub2() {
+  function sub4() {
 
     var env, osc, freqEnvelope;
+
 
     freqEnvelope = new p5.Env(0.1, 1, 1, 1)
 
@@ -912,6 +895,7 @@ function createKick2() {
 
     return{
       play: function(pA, pB){
+        console.log("sub kick 2");
         osc.freq(freqEnvelope.decayTime);
         osc.start();
         env.set(0.001, .5, .5, 0.1);
@@ -920,7 +904,7 @@ function createKick2() {
     }
   }
 
-  function noise1() {
+  function noise2() {
     var noise, env;
 
     noise = new p5.Noise(); // other types include 'brown' and 'pink'
@@ -936,15 +920,16 @@ function createKick2() {
     // play noise
     return {
       play: function(pA, pB){
+        console.log("noise kick 2");
         env.play(noise);
       }
     }
   }
 
-  subInst = sub1();
+  subInst = sub3();
 
-  noiseInst = noise1();
-  subInst2 = sub2();
+  noiseInst = noise2();
+  subInst2 = sub4();
   //noise1();
 
   return {
@@ -953,13 +938,6 @@ function createKick2() {
       subInst.play(pA, pB);
       noiseInst.play(pA, pB);
       subInst2.play();
-    },
-    destroy: function(){
-      noise.stop();
-      env.stop();
-
-      delete noise;
-      delete env;
     }
   }
 }
@@ -969,12 +947,11 @@ function createKick2() {
 function createChord() {
 
   var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
-  var env, osc;
   var note1, note2, note3;
 
 
   function osc1() {
-
+    var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
     osc.setType('triangle');
     osc.amp(0);

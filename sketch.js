@@ -125,7 +125,7 @@ function createUniverse(){
     },
     {
       initRotation: PI,
-      delta:2,
+      delta:8,
       radius: 4,
       rotationRadius: 40,
       color: "#FACADE",
@@ -139,7 +139,7 @@ function createUniverse(){
       color: "#FACADE",
       flareDecay: 0
     },
-    createHat
+    createKick2
   );
 
   // set planet snare's orbit color
@@ -161,7 +161,7 @@ function createUniverse(){
     },
     {
       initRotation: PI,
-      delta: 1,
+      delta: 4,
       radius: 6,
       rotationRadius: 50,
       color: "#A6ACEC",
@@ -175,7 +175,7 @@ function createUniverse(){
       color: "#ACE7EF",
       flareDecay: 0
     },
-    createKick
+    createChord
   );
 
   // set planet synth orbit color
@@ -195,7 +195,7 @@ function createUniverse(){
     },
     {
       initRotation: PI,
-      delta: 1,
+      delta: 4,
       radius: 10,
       rotationRadius: 150,
       color: "#EACD65",
@@ -209,7 +209,7 @@ function createUniverse(){
       color: "#8D3434",
       flareDecay: 0
     },
-    createKick
+    createArp
   );
 
   // set planet bass' orbit color
@@ -439,17 +439,21 @@ function createPlanet(options, moonOptions, satelliteOptions, sound){
     }
   };
 
-  planet.createMoonAndSatellite = function(rotation){
+  planet.createMoonAndSatellite = function(moonRotation){
     var options;
     var satellite;
     var moon;
 
-    options = {}
+    options = {};
     _.assign(options, satelliteOptions, {rotation: random(0, 2*PI)});
     satellite = createOrbiter(options);
 
     _.assign(options, moonOptions, {rotationRadius: moonOptions.rotationRadius * random(1, 2)});
 
+
+    if (_.isUndefined(moonRotation)){
+      options.rota
+    }
 
     moon = createOrbiter(options);
     moon.satellites = moon.orbiters;
@@ -772,7 +776,7 @@ function createHat() {
 function createKick() {
   function sub1() {
  
-    var noise, env;
+    var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
     osc.setType('sine');
 
@@ -797,7 +801,7 @@ function createKick() {
 
   function sub2() {
  
-    var noise, env, freq;
+    var env, osc;
 
     freqEnvelope = new p5.Env(0.1, 1, 1, 1)
 
@@ -846,6 +850,7 @@ function createKick() {
 
   return {
     play: function(pA, pB){
+      console.log("play kick")
       subInst.play(pA, pB);
       noiseInst.play(pA, pB);
     },
@@ -855,6 +860,179 @@ function createKick() {
 
       delete noise;
       delete env;
+    }
+  }
+}
+
+
+// Create kick
+function createKick2() {
+  function sub1() {
+
+    var env, osc;
+    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
+    osc.setType('square');
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    osc.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env();
+
+    // play noise
+
+    return{
+      play: function(pA, pB){
+        osc.freq(70);
+        osc.start();
+        env.set(0.001, 1, pB, 0.5);
+        env.play(osc);
+      }
+    }
+  }
+
+  function sub2() {
+
+    var env, osc, freqEnvelope;
+
+    freqEnvelope = new p5.Env(0.1, 1, 1, 1)
+
+    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
+    osc.setType('sine');
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    osc.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env();
+
+    // play noise
+
+    return{
+      play: function(pA, pB){
+        osc.freq(freqEnvelope.decayTime);
+        osc.start();
+        env.set(0.001, .5, .5, 0.1);
+        env.play(osc);
+      }
+    }
+  }
+
+  function noise1() {
+    var noise, env;
+
+    noise = new p5.Noise(); // other types include 'brown' and 'pink'
+    noise.start();
+
+    // multiply noise volume by 0
+    // (keep it quiet until we're ready to make noise!)
+    noise.amp(0);
+
+    // set attackTime, decayTime, sustainRatio, releaseTime
+    env = new p5.Env(0.001, .2, .001, 0.1);
+
+    // play noise
+    return {
+      play: function(pA, pB){
+        env.play(noise);
+      }
+    }
+  }
+
+  subInst = sub1();
+
+  noiseInst = noise1();
+  subInst2 = sub2();
+  //noise1();
+
+  return {
+    play: function(pA, pB){
+      console.log("play kick 2")
+      subInst.play(pA, pB);
+      noiseInst.play(pA, pB);
+      subInst2.play();
+    },
+    destroy: function(){
+      noise.stop();
+      env.stop();
+
+      delete noise;
+      delete env;
+    }
+  }
+}
+
+
+// Create chord
+function createChord() {
+
+  var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+  var env, osc;
+  var note1, note2, note3;
+
+
+  function osc1() {
+
+    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
+    osc.setType('triangle');
+    osc.amp(0);
+    env = new p5.Env();
+    osc.start();
+
+    return {
+      play: function(pA, pB, note){
+        env.set(pA, 1, pB, .5);
+        osc.freq(note);
+        env.play(osc);
+      }
+    }
+  }
+
+  note1 = osc1();
+  note2 = osc1();
+  note3 = osc1();
+
+  return {
+    play: function(pA, pB){
+      var randomNote = Math.floor(Math.random() * scaleArray.length);
+      var randomizer = Math.floor(Math.random(3));
+
+      freq = scaleArray[randomNote];
+      note1.play(pA, pB, scaleArray[0] + randomizer);
+      note2.play(pA, pB, scaleArray[1] + randomizer);
+      note3.play(pA, pB, scaleArray[randomNote]);
+    }
+  }
+}
+
+// Create arp
+function createArp() {
+
+
+  var osc, env;
+  var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+
+
+  osc = new p5.Oscillator();
+  osc.setType('square');
+  osc.start();
+  osc.amp(0);
+  env = new p5.Env();
+
+  return {
+    play: function (pA, pB) {
+      env.set(0.1, 1, pB, .5);
+      env.play(osc);
+      for (var i = 1; i < Math.floor(pA * 6); i++) {
+        setTimeout(function (x) {
+          var randomNote = Math.floor(Math.random() * scaleArray.length);
+          var freq = scaleArray[randomNote];
+          osc.freq(freq);
+          env.play(osc);
+        }, 300 * i);
+      }
     }
   }
 }

@@ -139,7 +139,7 @@ function createUniverse(){
       color: "#FACADE",
       flareDecay: 0
     },
-    createKick2
+    createBass
   );
 
   // set planet snare's orbit color
@@ -773,8 +773,8 @@ function createHat() {
 }
 
 // Create kick
-function createKick() {
-  function sub1() {
+function createBass() {
+  function createSub() {
  
     var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
@@ -791,17 +791,24 @@ function createKick() {
 
     return{
       play: function(pA, pB){
-        console.log("sub1 kick1")
-        osc.freq(100+(80*pA));
+        pA = map(pA, 0, 1, 0.5, 1);
+        pB = map(pB, 0, 1, 0.5, 1);
+        osc.freq(40)
         osc.start();
-        env.set(0.001, 1, pB, 0.5);
+        env.set(0.001, pB, pA, 0.5);
         env.play(osc);
+      },
+      destroy: function(){
+        osc.stop();
+        env.stop();
+        delete osc;
+        delete env;
       }
     }
   }
 
 
-  function noise1() {
+  function createNoise() {
     var noise, env;
 
     noise = new p5.Noise(); // other types include 'brown' and 'pink'
@@ -817,39 +824,43 @@ function createKick() {
     // play noise
     return {
       play: function(pA, pB){
-        console.log("noise1 kick1")
         env.play(noise);
+      },
+      destroy: function(){
+        noise.stop();
+        env.stop();
+        delete noise;
+        delete env;
       }
     }
   }
 
-  var subInst = sub1();
-  var noiseInst = noise1();
-  ////sub2();
-  //noise1();
+  var sub = createSub();
+  var noise = createNoise();
 
   return {
     play: function(pA, pB){
       console.log("play kick1")
-      subInst.play(pA, pB);
-      noiseInst.play(pA, pB);
+      sub.play(pA, pB);
+      noise.play(pA, pB);
     },
     destroy: function(){
       noise.stop();
-      env.stop();
+      sub.stop();
+
+      noise.destroy();
+      sub.destroy();
 
       delete noise;
-      delete env;
+      delete sub;
     }
   }
 }
 
 
 // Create kick
-function createKick2() {
-
-  var subInst, noiseInst, subInst2;
-  function sub3() {
+function createKick() {
+  function createSquareSub() {
 
     var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
@@ -866,7 +877,7 @@ function createKick2() {
 
     return{
       play: function(pA, pB){
-        osc.freq(70);
+        osc.freq(40);
         osc.start();
         env.set(0.001, 1, pB, 0.5);
         env.play(osc);
@@ -874,7 +885,7 @@ function createKick2() {
     }
   }
 
-  function sub4() {
+  function createSineSub() {
 
     var env, osc, freqEnvelope;
 
@@ -896,15 +907,15 @@ function createKick2() {
     return{
       play: function(pA, pB){
         console.log("sub kick 2");
-        osc.freq(freqEnvelope.decayTime);
+        osc.freq(40);
         osc.start();
-        env.set(0.001, .5, .5, 0.1);
+        env.set(0.001, .2, .1, 0.1);
         env.play(osc);
       }
     }
   }
 
-  function noise2() {
+  function createNoise() {
     var noise, env;
 
     noise = new p5.Noise(); // other types include 'brown' and 'pink'
@@ -920,24 +931,27 @@ function createKick2() {
     // play noise
     return {
       play: function(pA, pB){
-        console.log("noise kick 2");
         env.play(noise);
       }
     }
   }
 
-  subInst = sub3();
-
-  noiseInst = noise2();
-  subInst2 = sub4();
-  //noise1();
+  var sineSub, noise, squareSub;
+  sineSub = createSineSub();
+  noise = createNoise();
+  squareSub = createSquareSub();
 
   return {
     play: function(pA, pB){
       console.log("play kick 2")
-      subInst.play(pA, pB);
-      noiseInst.play(pA, pB);
-      subInst2.play();
+      sineSub.play(pA, pB);
+      //noise.play(pA, pB);
+      //squareSub.play(pA, pB);
+    },
+    sounds: {
+      sineSub: sineSub,
+      noise: noise,
+      squareSub: squareSub
     }
   }
 }
@@ -950,7 +964,7 @@ function createChord() {
   var note1, note2, note3;
 
 
-  function osc1() {
+  function createOscillator() {
     var env, osc;
     osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
     osc.setType('triangle');
@@ -967,14 +981,14 @@ function createChord() {
     }
   }
 
-  note1 = osc1();
-  note2 = osc1();
-  note3 = osc1();
+  note1 = createOscillator();
+  note2 = createOscillator();
+  note3 = createOscillator();
 
   return {
     play: function(pA, pB){
       var randomNote = Math.floor(Math.random() * scaleArray.length);
-      var randomizer = Math.floor(Math.random(3));
+      var randomizer = Math.floor(Math.random(3)) + 1;
 
       freq = scaleArray[randomNote];
       note1.play(pA, pB, scaleArray[0] + randomizer);
@@ -990,6 +1004,7 @@ function createArp() {
 
   var osc, env;
   var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
+  scaleArray = [65.41, 73.42, 82.41, 87.31, 98.0, 110.0, 123.47];
 
 
   osc = new p5.Oscillator();
@@ -1000,12 +1015,16 @@ function createArp() {
 
   return {
     play: function (pA, pB) {
+      var randomNote, freq;
       env.set(0.1, 1, pB, .5);
+      randomNote = Math.floor(Math.random() * scaleArray.length);
+      freq = scaleArray[randomNote];
+      osc.freq(freq);
       env.play(osc);
       for (var i = 1; i < Math.floor(pA * 6); i++) {
         setTimeout(function (x) {
-          var randomNote = Math.floor(Math.random() * scaleArray.length);
-          var freq = scaleArray[randomNote];
+          randomNote = Math.floor(Math.random() * scaleArray.length);
+          freq = scaleArray[randomNote];
           osc.freq(freq);
           env.play(osc);
         }, 300 * i);

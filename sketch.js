@@ -13,6 +13,26 @@ var socket;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
+// Socket.io
+//
+
+function setupSocket(){
+  socket.on("keypress", handleKeyPress);
+
+
+}
+
+function sendKeypress(key){
+  socket.emit("keypress", key);
+}
+
+//
+// Socket.io
+//
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+//
 // Setup
 //
 
@@ -28,7 +48,11 @@ function rotationDelta(bpm, fps){
 }
 
 function setup() {
+
+  // socket.io setup
   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+  socket.onopen = setupSocket;
+
 
   planetBaseSpeed = rotationDelta(110, 60);
   frameRate(60);
@@ -264,6 +288,12 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
+  handleKeyPress(key);
+}
+
+function handleKeyPress(key){
+  console.log("handleKeyPress", key);
+  var didHandleKeypress = true;
   switch(key){
     case "Q":
       if (!univ[0].mute){
@@ -320,6 +350,13 @@ function keyPressed() {
     case "B":
       univ[4].clearMoonsAndSatellites();
       break;
+    default:
+      didHandleKeypress = false;
+
+
+    if (didHandleKeypress){
+      sendKeypress(key);
+    }
   }
 }
 

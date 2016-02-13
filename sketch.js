@@ -6,6 +6,11 @@ var orbitScaleFactor = 1;
 var orbiterSizeScaleFactor = 1;
 var planetBaseSpeed = null;
 
+// socket.io vars
+var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
+var TEAM_NAME  = 'gastropub';
+var socket;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Setup
@@ -23,6 +28,8 @@ function rotationDelta(bpm, fps){
 }
 
 function setup() {
+  socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+
   planetBaseSpeed = rotationDelta(110, 60);
   frameRate(60);
 

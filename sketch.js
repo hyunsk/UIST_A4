@@ -352,11 +352,10 @@ function handleKeyPress(key){
       break;
     default:
       didHandleKeypress = false;
-
-
-    if (didHandleKeypress){
-      sendKeypress(key);
-    }
+  }
+  
+  if (didHandleKeypress){
+    sendKeypress(key);
   }
 }
 
@@ -950,7 +949,6 @@ function createKick() {
 
     return{
       play: function(pA, pB){
-        console.log("sub kick 2");
         osc.freq(40);
         osc.start();
         env.set(0.001, .2, .1, 0.1);
@@ -987,7 +985,6 @@ function createKick() {
 
   return {
     play: function(pA, pB){
-      console.log("play kick 2")
       sineSub.play(pA, pB);
       //noise.play(pA, pB);
       //squareSub.play(pA, pB);

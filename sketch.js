@@ -3,6 +3,7 @@ var mySolarSystem = null;
 var stars;
 var planetBaseSpeed = null;
 var sounds = [];
+var masterSound = null;
 var sunSound = null;
 var keyboardDisabled = false;
 var fps = 60;
@@ -100,6 +101,7 @@ var network = {
 //
 
 function preload() {
+  createMasterSound();
   loadSounds();
 }
 
@@ -144,6 +146,17 @@ function setup() {
 //
 // Configuration -------------------------------------------------------------------------------
 //
+
+function createMasterSound(){
+  filter = new p5.BandPass();
+  masterSound = {
+    set: function(freq, res){
+      filter.freq(freq);
+      filter.res(res);
+    },
+    sound: filter
+  };
+}
 
 function loadSounds() {
   var soundNames = ["drums", "bass", "melody", "lead", "pad"];
@@ -343,7 +356,9 @@ function createFriendsSystem(system){
     },
     system.id % sounds.length,
     generatePlanetsSettings(0),
-    system);
+    system,
+    false
+  );
 
   univ.push(obj);
 }
@@ -361,6 +376,8 @@ function createSound(soundIndex, noteIndex, options){
   sound.setVolume(options.volume);
   sound.playMode('sustain');
 
+  sound.disconnect();
+  sound.connect(masterSound.sound);
 
   return {
     play: function(pA, pB){
@@ -371,7 +388,7 @@ function createSound(soundIndex, noteIndex, options){
 }
 
 
-function createSolarSystem(id, center, scale, soundIndex, planetsSettings, currentState){
+function createSolarSystem(id, center, scale, soundIndex, planetsSettings, currentState, isClientsSystem){
   var planet;
   scale.normalSizeFactor = scale.sizeFactor;
   scale.zoomSpeed = 0.01;
@@ -380,13 +397,16 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   if(_.isUndefined(scale.zoomTarget)){
     scale.zoomTarget = 0.2;
   }
+  if(_.isUndefined(isClientsSystem)){
+    isClientsSystem = true;
+  }
 
   var system = {
     center: center,
     scale: scale,
     planets: [],
     id: id,
-    isClientsSystem: true,
+    isClientsSystem: isClientsSystem,
     soundIndex: soundIndex
   }
 
@@ -397,11 +417,19 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   }
 
   if (!_.isUndefined(currentState)){
-    loadCurrentState(currentState)
+    loadCurrentState(currentState);
   }
 
-  function loadCurrentState(){
+  function loadCurrentState(currentState){
+    _(currentState.planets).forEach(function(planet, i){
+      var systemPlanet = system.planets[i];
+      systemPlanet.rotation = planet.rotation;
+      systemPlanet.mute = planet.mute;
+      _(currentState.planets.orbiters).forEach(function(moon){
 
+
+      });
+    });
   }
 
   function drawSun(){
@@ -410,12 +438,12 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
     if (frameCount % fpb == 0){
       diameter = 115 * system.scale.sizeFactor;
 
-      sunSound.play();
-
-
+      if (system.isClientsSystem){
+        sunSound.play();
+      }
     }
 
-    fill('#FF9757 ');
+    fill('#FF9757');
     ellipse(system.center.x, system.center.y, diameter, diameter);
 
   }
@@ -451,7 +479,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   };
 
   system.updateSounds = function(index){
-    system.soudnIndex = index;
+    system.soundIndex = index;
     _(system.planets).forEach(function(planet, i){
       planet.sound = createSound(index, i, {volume: 0.1});
     })
@@ -667,6 +695,14 @@ function handleKeyPress(system, key){
   return didHandleKeypress;
 }
 
+function handleMouseToMasterSound(){
+  var freq = map(mouseX, 0, width, 20, 10000);
+
+  var res = map(mouseY, height / 4, 3 * height / 4, 0, 10);
+
+  masterSound.set(freq, res)
+}
+
 //
 // Input
 //
@@ -693,7 +729,9 @@ function draw() {
   _(univ).forEach(function(system){
     system.drawAndUpdate();
     system.zoom();
-  })
+  });
+
+  handleMouseToMasterSound();
 }
 
 //

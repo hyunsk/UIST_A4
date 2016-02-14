@@ -3,22 +3,69 @@ var mySolarSystem = null;
 var stars;
 var planetBaseSpeed = null;
 
-// socket.io vars
-var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
-var TEAM_NAME  = 'gastropub';
-var socket;
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Socket.io
 //
 
-function setupSocketListeners(){
-  socket.on("keypress", handleKeyPress);
-}
+var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
+var TEAM_NAME  = 'gastropub';
+var socket;
 
-function sendKeypress(key){
-  socket.emit("keypress", key);
+
+var network = {
+
+  setup: function () {
+    // socket.io setup
+    socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
+
+    this.onKeypress();
+    this.onCurrentUniverse();
+    this.sendJoined();
+    this.onJoined();
+  },
+  onKeypress: function(){
+    socket.on("keypress", function(systemID, key){
+      for (var i=0; i< univ.length; i++){
+        if (univ[i].id == systemID){
+          system = univ[i];
+        }
+      }
+      handleKeyPress(system, key)
+    });
+  },
+  sendKeypress: function (key) {
+    socket.emit("keypress", mySolarSystem.id, key);
+  },
+  sendJoined: function () {
+    socket.emit("joined");
+  },
+  onJoined: function() {
+    socket.on("joined", function(){
+      network.sendCurrentUniverse();
+    });
+  },
+  onCurrentUniverse: function () {
+    socket.on("currentUniverse", function(currentUniverse){
+      socket.off("currentUniverse");
+      _.assign(univ, currentUniverse);
+      for(var i=0; i< univ.length; i++){
+        if (univ.id >= mySolarSystem.id){
+          mySolarSystem.id = univ.id+1;
+        }
+      }
+
+      // send mySolarSystem after getting currentUniverse
+      socket.emit("newSolarSystem", mySolarSystem);
+      //setup();
+    });
+  },
+  sendCurrentUniverse: function() {
+    //serialize
+    _.assign(currentUniverse, univ);
+    currentUniverse.push(mySolarSystem);
+    socket.emit("currentUniverse", currentUniverse);
+  }
 }
 
 //
@@ -43,13 +90,6 @@ function rotationDelta(bpm, fps){
 }
 
 function setup() {
-
-  // socket.io setup
-  socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-
-  setupSocketListeners();
-
-
   planetBaseSpeed = rotationDelta(110, 60);
   frameRate(60);
 
@@ -66,6 +106,7 @@ function setup() {
     [createKick, createHat, createBass, createChord, createArp]
   );
 
+  network.setup();
   stars = generateStars(500, 1000, 4);
 }
 
@@ -78,7 +119,8 @@ function createSolarSystem(center, scale, sounds){
   var system = {
     center: center,
     scale: scale,
-    planets: []
+    planets: [],
+    id: 0
   }
 
   // create planet kick
@@ -357,13 +399,14 @@ function generateStars(minimum, maximum, maxRadius){
 
 function keyPressed() {
   if (handleKeyPress(mySolarSystem, key)){
-    sendKeypress(key);
+    network.sendKeypress(key);
   }
 }
 
-function handleKeyPress(solarSystem, key){
+function handleKeyPress(system, key){
   var didHandleKeypress = true;
-  var planets = solarSystem.planets;
+  var planets = system.planets;
+
   switch(key){
     case "Q":
       if (!planets[0].mute){

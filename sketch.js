@@ -326,12 +326,12 @@ function setupUniverse(mySystemId, currentState){
   mySolarSystem.updateSounds(mySystemId % sounds.length);
 
   _(currentState).forEach(function(system){
-    univ.push(createFriendsSystem(system));
+    createFriendsSystem(system);
   })
 }
 
 function createFriendsSystem(system){
-  return createSolarSystem(
+  var obj = createSolarSystem(
     system.id,
     {
       x: windowWidth / 2,
@@ -341,8 +341,11 @@ function createFriendsSystem(system){
       distanceFactor: 1,
       sizeFactor: 0.7
     },
+    system.id % sounds.length,
     generatePlanetsSettings(0),
     system);
+
+  univ.push(obj);
 }
 
 function createSound(soundIndex, noteIndex, options){
@@ -687,7 +690,10 @@ function draw() {
   mySolarSystem.drawAndUpdate();
   mySolarSystem.zoom();
 
-
+  _(univ).forEach(function(system){
+    system.drawAndUpdate();
+    system.zoom();
+  })
 }
 
 //

@@ -1,8 +1,9 @@
 var orbitPathColors = [];
 var univ = [];
-var stars = [];
+var mySolarSystem = null;
+var stars;
 var starMaxRadius = null;
-var orbitScaleFactor = 1;
+var orbitScaleFactor = 0.7;
 var orbiterSizeScaleFactor = 1;
 var planetBaseSpeed = null;
 
@@ -57,18 +58,32 @@ function setup() {
   frameRate(60);
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
-  createUniverse();
+  mySolarSystem = createSolarSystem(
+    {
+      x: windowWidth / 2,
+      y: windowHeight/2
+    },
+    {
+      distanceFactor: 1,
+      sizeFactor: 0.7
+    },
+    [createKick, createHat, createBass, createChord, createArp]
+  );
+
+  stars = generateStars(500, 1000, 4);
 }
 
 //
 // Setup Helpers -------------------------------------------------------------------------------
 //
 
-function createUniverse(){
+function createSolarSystem(center, scale, sounds){
   var kick, snare, hat, synth, bass;
-  var tempOrbiter;
-  var x = windowWidth / 2;
-  var y = windowHeight / 2;
+  var system = {
+    center: center,
+    scale: scale,
+    planets: []
+  }
 
   // create planet kick
   // first ring
@@ -97,13 +112,11 @@ function createUniverse(){
       color: "#90E0AB",
       flareDecay: 0
     },
-    createKick
+    sounds.shift()
   );
 
-  // set planet kick orbit color
-  orbitPathColors.push("#E5FCC2");
   // add planet kick to univ
-  univ.push(kick);
+  system.planets.push(kick);
 
 
   // create planet hat
@@ -133,13 +146,11 @@ function createUniverse(){
       color: "#C7F6F5",
       flareDecay: 0
     },
-    createHat
+    sounds.shift()
   );
 
-  // set planet kick orbit color
-  orbitPathColors.push("#9DE0AD");
   // add planet kick to univ
-  univ.push(hat);
+  system.planets.push(hat);
 
 
   // create planet snare
@@ -169,13 +180,11 @@ function createUniverse(){
       color: "#FACADE",
       flareDecay: 0
     },
-    createBass
+    sounds.shift()
   );
 
-  // set planet snare's orbit color
-  orbitPathColors.push("#45ADA8");
   // add planet snare to univ
-  univ.push(snare);
+  system.planets.push(snare);
 
 
   // create planet synth
@@ -205,13 +214,11 @@ function createUniverse(){
       color: "#ACE7EF",
       flareDecay: 0
     },
-    createChord
+    sounds.shift()
   );
 
-  // set planet synth orbit color
-  orbitPathColors.push("#547980");
   // add planet synth to univ
-  univ.push(synth);
+  system.planets.push(synth);
 
   // create planet bass
   // fifth ring
@@ -239,24 +246,59 @@ function createUniverse(){
       color: "#8D3434",
       flareDecay: 0
     },
-    createArp
+    sounds.shift()
   );
 
-  // set planet bass' orbit color
-  orbitPathColors.push("#2D727F");
   // add planet bass to univ
-  univ.push(bass);
+  system.planets.push(bass);
 
-  generateStars(500, 1000, 4);
 
-  // Create black background
-  fill(0, 0, 0, 255);
-  rect(0,0,windowWidth,windowHeight);
+  function drawSun(){
+    var diameter = 100 * system.scale.sizeFactor;
+
+    //draw sun
+    fill('#FF9757');
+    ellipse(system.center.x, system.center.y, diameter, diameter);
+
+  }
+
+  system.update = function(){
+    for(i=0; i<system.planets.length; i++){
+      planet = system.planets[i];
+
+      planet.updateRotation();
+
+      planet.checkPlaySound();
+
+      // draw planet's orbiters
+      planet.updateOrbiters(planet.x, planet.y, false);
+    }
+  }
+
+  system.drawAndUpdate = function(){
+    drawSun();
+
+    for(i=0; i<system.planets.length; i++){
+      planet = system.planets[i];
+
+      // draw planet
+      planet.draw(system.center.x, system.center.y, planet.mute, system.scale);
+      planet.updateRotation();
+
+      planet.checkPlaySound();
+
+      // draw planet's orbiters
+      planet.drawOrbiters(planet.x, planet.y, planet.mute, system.scale);
+    }
+  }
+
+  return system
 }
 
 
 function generateStars(minimum, maximum, maxRadius){
   var i, star;
+  var stars = [];
 
   starMaxRadius = maxRadius;
 
@@ -271,6 +313,32 @@ function generateStars(minimum, maximum, maxRadius){
     }
 
     stars.push(star);
+  }
+
+  function drawStar(star){
+    var multiplier;
+
+    fill(255, 255, 255, star.r);
+    noStroke();
+    drawCircle(star.x, star.y, star.r);
+
+
+    multiplier = 1 + random(-0.1, 0.1);
+    star.r *= multiplier;
+
+    multiplier = 1 + random(-0.1, 0.1);
+    star.a *= multiplier;
+
+    star.r = constrain(star.r, 0.3, starMaxRadius);
+    star.a = constrain(star.a, 50, 255);
+  }
+
+  return {
+    drawStars: function(){
+      for (i=0; i < stars.length; i++){
+        drawStar(stars[i]);
+      }
+    }
   }
 }
 
@@ -292,63 +360,63 @@ function keyPressed() {
 }
 
 function handleKeyPress(key){
-  console.log("handleKeyPress", key);
   var didHandleKeypress = true;
+  var planets = mySolarSystem.planets;
   switch(key){
     case "Q":
-      if (!univ[0].mute){
-        univ[0].createMoonAndSatellite();
+      if (!planets[0].mute){
+        planets[0].createMoonAndSatellite();
       }
       break;
     case "W":
-      if (!univ[1].mute) {
-        univ[1].createMoonAndSatellite();
+      if (!planets[1].mute) {
+        planets[1].createMoonAndSatellite();
       }
       break;
     case "E":
-      if (!univ[2].mute) {
-        univ[2].createMoonAndSatellite();
+      if (!planets[2].mute) {
+        planets[2].createMoonAndSatellite();
       }
       break;
     case "R":
-      if (!univ[3].mute) {
-        univ[3].createMoonAndSatellite();
+      if (!planets[3].mute) {
+        planets[3].createMoonAndSatellite();
       }
       break;
     case "T":
-      if (!univ[4].mute) {
-        univ[4].createMoonAndSatellite()
+      if (!planets[4].mute) {
+        planets[4].createMoonAndSatellite()
       }
       break;
     case "A":
-      univ[0].mute = !univ[0].mute;
+      planets[0].mute = !planets[0].mute;
       break;
     case "S":
-      univ[1].mute = !univ[1].mute;
+      planets[1].mute = !planets[1].mute;
       break;
     case "D":
-      univ[2].mute = !univ[2].mute;
+      planets[2].mute = !planets[2].mute;
       break;
     case "F":
-      univ[3].mute = !univ[3].mute;
+      planets[3].mute = !planets[3].mute;
       break;
     case "G":
-      univ[4].mute = !univ[4].mute;
+      planets[4].mute = !planets[4].mute;
       break;
     case "Z":
-      univ[0].clearMoonsAndSatellites();
+      planets[0].clearMoonsAndSatellites();
       break;
     case "X":
-      univ[1].clearMoonsAndSatellites();
+      planets[1].clearMoonsAndSatellites();
       break;
     case "C":
-      univ[2].clearMoonsAndSatellites();
+      planets[2].clearMoonsAndSatellites();
       break;
     case "V":
-      univ[3].clearMoonsAndSatellites();
+      planets[3].clearMoonsAndSatellites();
       break;
     case "B":
-      univ[4].clearMoonsAndSatellites();
+      planets[4].clearMoonsAndSatellites();
       break;
     default:
       didHandleKeypress = false;
@@ -371,45 +439,13 @@ function handleKeyPress(key){
 function draw() {
   var i, planet, doFlare;
 
-
-  //clear();
-
   //draw refresher
   fill(0, 0, 0, 20)
   rect(0,0,windowWidth,windowHeight)
 
-  //draw sun
-  fill('#FF9757');
-  ellipse((windowWidth/2), (windowHeight/2), 100, 100);
+  stars.drawStars();
 
-
-  for (i=0; i < stars.length; i++){
-    drawStar(stars[i]);
-  }
-
-  x = windowWidth / 2;
-  y = windowHeight / 2;
-
-  for(i=0; i<univ.length; i++){
-    planet = univ[i];
-
-    // draw orbit path
-    // noFill();
-    // stroke(orbitPathColors[i]);
-    // strokeWeight(1);
-    // drawCircle(x, y, planet.rotationRadius);
-
-
-    // draw planet
-    planet.draw(x, y, false, planet.mute, false);
-    planet.updateRotation();
-
-    planet.checkPlaySound();
-
-    // draw planet's orbiters
-    planet.drawOrbiters(planet.x, planet.y, false, planet.mute, planet.doFlare);
-  }
-
+  mySolarSystem.drawAndUpdate();
 }
 
 //
@@ -417,24 +453,7 @@ function draw() {
 //
 
 
-function drawStar(star){
-  var multiplier;
 
-  fill(255, 255, 255, star.r);
-  noStroke();
-  drawCircle(star.x, star.y, star.r);
-
-
-  multiplier = 1 + random(-0.1, 0.1);
-  star.r *= multiplier;
-
-  multiplier = 1 + random(-0.1, 0.1);
-  star.a *= multiplier;
-
-  star.r = constrain(star.r, 0.3, starMaxRadius);
-  star.a = constrain(star.a, 50, 255);
-
-}
 
 function createPlanet(options, moonOptions, satelliteOptions, sound){
   var planet, triggerRotation, mapParams;
@@ -480,7 +499,7 @@ function createPlanet(options, moonOptions, satelliteOptions, sound){
     }
   };
 
-  planet.createMoonAndSatellite = function(moonRotation){
+  planet.createMoonAndSatellite = function(){
     var options;
     var satellite;
     var moon;
@@ -490,11 +509,6 @@ function createPlanet(options, moonOptions, satelliteOptions, sound){
     satellite = createOrbiter(options);
 
     _.assign(options, moonOptions, {rotationRadius: moonOptions.rotationRadius * random(1, 2)});
-
-
-    if (_.isUndefined(moonRotation)){
-      options.rota
-    }
 
     moon = createOrbiter(options);
     moon.satellites = moon.orbiters;
@@ -545,34 +559,42 @@ function createOrbiter(options){
     doFlash: false
   };
   override = {
-    radius: options.radius * orbiterSizeScaleFactor,        // scale orbiter's size and rotation radius by global scale factors
-    rotationRadius: options.rotationRadius * orbitScaleFactor,
+    radius: options.radius,        // scale orbiter's size and rotation radius by global scale factors
+    rotationRadius: options.rotationRadius,
     delta: planetBaseSpeed * options.delta,
     color: orbiterColor,
     initColor: orbiterColor
   }
   _.assign(orbiter, defaults, options, override);
 
-
-  orbiter.drawOrbiters = function(x, y, doFlare, grayscale){
+  orbiter.updateOrbiters = function(x, y, grayscale){
     var i, currentOrbiter;
     for (i = 0; i< orbiter.orbiters.length; i++){
       currentOrbiter = orbiter.orbiters[i];
-      currentOrbiter.draw(x, y, doFlare, grayscale);
+
       currentOrbiter.updateRotation();
 
       if (currentOrbiter.orbiters.length){
-        currentOrbiter.drawOrbiters(currentOrbiter.x, currentOrbiter.y, false, grayscale)
+        currentOrbiter.updateOrbiters(currentOrbiter.x, currentOrbiter.y, false, grayscale)
+      }
+    }
+  }
+
+  orbiter.drawOrbiters = function(x, y, grayscale, scale){
+    var i, currentOrbiter;
+    for (i = 0; i< orbiter.orbiters.length; i++){
+      currentOrbiter = orbiter.orbiters[i];
+      currentOrbiter.draw(x, y, grayscale, scale);
+      currentOrbiter.updateRotation();
+
+      if (currentOrbiter.orbiters.length){
+        currentOrbiter.drawOrbiters(currentOrbiter.x, currentOrbiter.y, grayscale, scale)
       }
     }
   };
 
-  orbiter.draw = function(x, y, doFlare, grayscale){
+  orbiter.draw = function(x, y, grayscale, scale){
     var pt;
-
-    if (doFlare){
-      orbiter.doFlare = true;
-    }
 
     if (orbiter.doFlare){
       orbiter.drawFlare(x, y);
@@ -590,12 +612,12 @@ function createOrbiter(options){
 
     noStroke();
 
-    pt = getOrbitPos(x, y, orbiter.rotationRadius, orbiter.rotation);
+    pt = getOrbitPos(x, y, orbiter.rotationRadius * scale.distanceFactor, orbiter.rotation);
 
     orbiter.x = pt.x;
     orbiter.y = pt.y;
 
-    drawCircle(orbiter.x, orbiter.y, orbiter.radius);
+    drawCircle(orbiter.x, orbiter.y, orbiter.radius  * scale.sizeFactor);
   };
 
   orbiter.drawFlare = function(x, y){

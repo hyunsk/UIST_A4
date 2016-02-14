@@ -89,10 +89,10 @@ function preload() {
   drumConga = loadSound('assets/sounds/drums/drums_05.mp3');
 }
 
-function rotationDelta(bpm, fps){
+function rotationDelta(bars, bpm, fps){
   var beats, spb, revTime, frames;
 
-  beats = 16 * 4;
+  beats = bars * 4;
   spb = 60 / bpm;
   revTime = spb * beats;
   frames = revTime * fps;
@@ -101,7 +101,7 @@ function rotationDelta(bpm, fps){
 }
 
 function setup() {
-  planetBaseSpeed = rotationDelta(110, 60);
+  planetBaseSpeed = rotationDelta(16, 120, 60);
   frameRate(60);
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
@@ -114,7 +114,8 @@ function setup() {
       distanceFactor: 1,
       sizeFactor: 0.7
     },
-    [createKick, createHat, createBass, createChord, createArp]
+
+    [{play: function(){}}, {play: function(){}}, {play: function(){}}, {play: function(){}}, {play: function(){}}]
   );
 
   network.setup();
@@ -554,7 +555,7 @@ function createPlanet(options, moonOptions, satelliteOptions, sound){
 
 
   planet.mute = false;
-  planet.sound = sound();
+  planet.sound = sound;
 
   mapParams = function(satellite, moon){
     var dx, dy;

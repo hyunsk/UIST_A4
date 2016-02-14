@@ -1,10 +1,6 @@
-var orbitPathColors = [];
 var univ = [];
 var mySolarSystem = null;
 var stars;
-var starMaxRadius = null;
-var orbitScaleFactor = 0.7;
-var orbiterSizeScaleFactor = 1;
 var planetBaseSpeed = null;
 
 // socket.io vars
@@ -224,7 +220,7 @@ function createSolarSystem(center, scale, sounds){
   // fifth ring
   bass = createPlanet({
       initRotation: 3*PI/2,
-      delta: 2,
+      delta: 1.7,
       radius: 40,
       rotationRadius: 760,
       color: "#E14242",
@@ -256,8 +252,14 @@ function createSolarSystem(center, scale, sounds){
   function drawSun(){
     var diameter = 100 * system.scale.sizeFactor;
 
-    //draw sun
-    fill('#FF9757');
+    if (frameCount % 30 == 0){
+      diameter = 115 * system.scale.sizeFactor;
+      //fill("rgb(250, 250, 250)");
+    } else {
+
+    }
+
+    fill('#FF9757 ');
     ellipse(system.center.x, system.center.y, diameter, diameter);
 
   }
@@ -300,7 +302,7 @@ function generateStars(minimum, maximum, maxRadius){
   var i, star;
   var stars = [];
 
-  starMaxRadius = maxRadius;
+  var starMaxRadius = maxRadius;
 
   i = random(minimum, maximum)
 
@@ -354,14 +356,14 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
-  if (handleKeyPress(key)){
+  if (handleKeyPress(mySolarSystem, key)){
     sendKeypress(key);
   }
 }
 
-function handleKeyPress(key){
+function handleKeyPress(solarSystem, key){
   var didHandleKeypress = true;
-  var planets = mySolarSystem.planets;
+  var planets = solarSystem.planets;
   switch(key){
     case "Q":
       if (!planets[0].mute){
@@ -552,7 +554,7 @@ function createOrbiter(options){
     flareAge: 0,
     flareDecay: 0,
     doFlare: false,
-    particles: new ParticleSystem(createVector(orbiter.x, orbiter.y)),
+    particles: new ParticleSystem(createVector(orbiter.x, orbiter.y, 12)),
     orbiters: [],
     x: 0,
     y: 0,
@@ -597,7 +599,7 @@ function createOrbiter(options){
     var pt;
 
     if (orbiter.doFlare){
-      orbiter.drawFlare(x, y);
+      orbiter.drawFlare(x, y, scale.sizeFactor * 12);
     }
 
     fill(orbiter.color);
@@ -620,7 +622,7 @@ function createOrbiter(options){
     drawCircle(orbiter.x, orbiter.y, orbiter.radius  * scale.sizeFactor);
   };
 
-  orbiter.drawFlare = function(x, y){
+  orbiter.drawFlare = function(x, y, size){
     var direction, dx, dy;
 
     orbiter.initRotation = orbiter.rotation;
@@ -668,7 +670,7 @@ function createOrbiter(options){
     // negative inverse for tangent
     direction = createVector(-dy, dx);
 
-    orbiter.particles.addParticle(direction, orbiter.color);
+    orbiter.particles.addParticle(direction, orbiter.color, size);
 
     orbiter.particles.run();
 
@@ -736,7 +738,8 @@ function getAlphaFraction(colorInstance){
 // Particle System from example -------------------------------------------------------------------------------
 
 // A simple Particle class
-var Particle = function(position, direction, particleColor) {
+var Particle = function(position, direction, particleColor, size) {
+  this.size = size;
   this.acceleration = direction;
   this.velocity = createVector(random(-1, 1), random(-1, 0));
   this.position = position.copy();
@@ -762,7 +765,7 @@ Particle.prototype.display = function() {
   //strokeWeight(2);
   noStroke();
   fill(adjustColorAlpha(this.particleColor, (this.lifespan / 100)));
-  ellipse(this.position.x, this.position.y, 12, 12);
+  ellipse(this.position.x, this.position.y, this.size, this.size);
 };
 
 // Is the particle still useful?
@@ -779,8 +782,8 @@ var ParticleSystem = function(position) {
   this.particles = [];
 };
 
-ParticleSystem.prototype.addParticle = function(direction, particleColor) {
-  this.particles.push(new Particle(this.origin, direction, particleColor));
+ParticleSystem.prototype.addParticle = function(direction, particleColor, size) {
+  this.particles.push(new Particle(this.origin, direction, particleColor, size));
 };
 
 ParticleSystem.prototype.run = function() {

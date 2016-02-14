@@ -78,6 +78,17 @@ var network = {
 // Setup
 //
 
+
+// Preload sounds for planets
+function preload() {
+  drumKick2 = loadSound('assets/sounds/drums/drums_00.mp3');
+  drumKick = loadSound('assets/sounds/drums/drums_01.mp3');
+  drumSnare = loadSound('assets/sounds/drums/drums_02.mp3');
+  drumHat = loadSound('assets/sounds/drums/drums_03.mp3');
+  drumSnap = loadSound('assets/sounds/drums/drums_04.mp3');
+  drumConga = loadSound('assets/sounds/drums/drums_05.mp3');
+}
+
 function rotationDelta(bpm, fps){
   var beats, spb, revTime, frames;
 
@@ -120,7 +131,12 @@ function createSolarSystem(center, scale, sounds){
     center: center,
     scale: scale,
     planets: [],
-    id: 0
+    id: 0,
+    zoomedOutScale: .2,
+    normalScale: .7,
+    zoomSpeed: .01,
+    doZoom: false,
+    zoomed: true
   }
 
   // create planet kick
@@ -296,6 +312,9 @@ function createSolarSystem(center, scale, sounds){
 
     if (frameCount % 30 == 0){
       diameter = 115 * system.scale.sizeFactor;
+
+      playAudioFile(drumKick);
+
       //fill("rgb(250, 250, 250)");
     } else {
 
@@ -333,6 +352,25 @@ function createSolarSystem(center, scale, sounds){
 
       // draw planet's orbiters
       planet.drawOrbiters(planet.x, planet.y, planet.mute, system.scale);
+    }
+  }
+
+  system.zoom = function() {
+    if (system.doZoom == true) {
+      if (system.scale.sizeFactor > system.zoomedOutScale && system.zoomed == true)
+      {
+        system.scale.sizeFactor -= system.zoomSpeed;
+        system.scale.distanceFactor -= system.zoomSpeed * 1.5;
+      }
+      else if (system.scale.sizeFactor < system.normalScale && system.zoomed == false)
+      {
+        system.scale.sizeFactor += system.zoomSpeed;
+        system.scale.distanceFactor += system.zoomSpeed * 1.5;
+      }
+      else {
+        system.doZoom = false;
+        system.zoomed = !system.zoomed;
+      }
     }
   }
 
@@ -463,6 +501,9 @@ function handleKeyPress(system, key){
     case "B":
       planets[4].clearMoonsAndSatellites();
       break;
+    case " ":
+      mySolarSystem.doZoom = true;
+      break;
     default:
       didHandleKeypress = false;
   }
@@ -491,12 +532,14 @@ function draw() {
   stars.drawStars();
 
   mySolarSystem.drawAndUpdate();
+  mySolarSystem.zoom();
+
+
 }
 
 //
 // Draw Helpers -------------------------------------------------------------------------------
 //
-
 
 
 
@@ -851,290 +894,16 @@ ParticleSystem.prototype.run = function() {
 // Sounds
 //
 
+// Test for audio file playback
+function playAudioFile (sound, pA, pB) {
+  sound.setVolume(0.1);
+  sound.playMode('sustain');
+  sound.play();
+}
+
 // Create hat
 function createHat() {
-
-  var noise, env;
-
-  noise = new p5.Noise(); // other types include 'brown' and 'pink'
-  noise.start();
-
-  // multiply noise volume by 0
-  // (keep it quiet until we're ready to make noise!)
-  noise.amp(0);
-
-  // set attackTime, decayTime, sustainRatio, releaseTime
-  env = new p5.Env();
-
-  return {
-    play: function(pA, pB){
-      env.set(0.001, pA, pB * 0.25, 0.1);
-      env.play(noise);
-    },
-    destroy: function(){
-      noise.stop();
-      env.stop();
-
-      delete noise;
-      delete env;
-    }
-  }
-}
-
-// Create kick
-function createBass() {
-  function createSub() {
- 
-    var env, osc;
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('sine');
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    osc.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env();
-
-    // play noise
-
-    return{
-      play: function(pA, pB){
-        pA = map(pA, 0, 1, 0.5, 1);
-        pB = map(pB, 0, 1, 0.5, 1);
-        osc.freq(40)
-        osc.start();
-        env.set(0.001, pB, pA, 0.5);
-        env.play(osc);
-      },
-      destroy: function(){
-        osc.stop();
-        env.stop();
-        delete osc;
-        delete env;
-      }
-    }
-  }
-
-
-  function createNoise() {
-    var noise, env;
-
-    noise = new p5.Noise(); // other types include 'brown' and 'pink'
-    noise.start();
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    noise.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env(0.001, .2, .001, 0.1);
-
-    // play noise
-    return {
-      play: function(pA, pB){
-        env.play(noise);
-      },
-      destroy: function(){
-        noise.stop();
-        env.stop();
-        delete noise;
-        delete env;
-      }
-    }
-  }
-
-  var sub = createSub();
-  var noise = createNoise();
-
-  return {
-    play: function(pA, pB){
-      sub.play(pA, pB);
-      noise.play(pA, pB);
-    },
-    destroy: function(){
-      noise.stop();
-      sub.stop();
-
-      noise.destroy();
-      sub.destroy();
-
-      delete noise;
-      delete sub;
-    }
-  }
-}
-
-
-// Create kick
-function createKick() {
-  function createSquareSub() {
-
-    var env, osc;
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('square');
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    osc.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env();
-
-    // play noise
-
-    return{
-      play: function(pA, pB){
-        osc.freq(40);
-        osc.start();
-        env.set(0.001, 1, pB, 0.5);
-        env.play(osc);
-      }
-    }
-  }
-
-  function createSineSub() {
-
-    var env, osc, freqEnvelope;
-
-
-    freqEnvelope = new p5.Env(0.1, 1, 1, 1)
-
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('sine');
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    osc.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env();
-
-    // play noise
-
-    return{
-      play: function(pA, pB){
-        osc.freq(40);
-        osc.start();
-        env.set(0.001, .2, .1, 0.1);
-        env.play(osc);
-      }
-    }
-  }
-
-  function createNoise() {
-    var noise, env;
-
-    noise = new p5.Noise(); // other types include 'brown' and 'pink'
-    noise.start();
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    noise.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env(0.001, .2, .001, 0.1);
-
-    // play noise
-    return {
-      play: function(pA, pB){
-        env.play(noise);
-      }
-    }
-  }
-
-  var sineSub, noise, squareSub;
-  sineSub = createSineSub();
-  noise = createNoise();
-  squareSub = createSquareSub();
-
-  return {
-    play: function(pA, pB){
-      sineSub.play(pA, pB);
-      //noise.play(pA, pB);
-      //squareSub.play(pA, pB);
-    },
-    sounds: {
-      sineSub: sineSub,
-      noise: noise,
-      squareSub: squareSub
-    }
-  }
-}
-
-
-// Create chord
-function createChord() {
-
-  var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
-  var note1, note2, note3;
-
-
-  function createOscillator() {
-    var env, osc;
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('triangle');
-    osc.amp(0);
-    env = new p5.Env();
-    osc.start();
-
-    return {
-      play: function(pA, pB, note){
-        env.set(pA, 1, pB, .5);
-        osc.freq(note);
-        env.play(osc);
-      }
-    }
-  }
-
-  note1 = createOscillator();
-  note2 = createOscillator();
-  note3 = createOscillator();
-
-  return {
-    play: function(pA, pB){
-      var randomNote = Math.floor(Math.random() * scaleArray.length);
-      var randomizer = Math.floor(Math.random(3)) + 1;
-
-      freq = scaleArray[randomNote];
-      note1.play(pA, pB, scaleArray[0] + randomizer);
-      note2.play(pA, pB, scaleArray[1] + randomizer);
-      note3.play(pA, pB, scaleArray[randomNote]);
-    }
-  }
-}
-
-// Create arp
-function createArp() {
-
-
-  var osc, env;
-  var scaleArray = [220.00, 246.94, 261.63, 293.66, 329.63, 349.23, 392.00, 440.00];
-  scaleArray = [65.41, 73.42, 82.41, 87.31, 98.0, 110.0, 123.47];
-
-
-  osc = new p5.Oscillator();
-  osc.setType('square');
-  osc.start();
-  osc.amp(0);
-  env = new p5.Env();
-
-  return {
-    play: function (pA, pB) {
-      var randomNote, freq;
-      env.set(0.1, 1, pB, .5);
-      randomNote = Math.floor(Math.random() * scaleArray.length);
-      freq = scaleArray[randomNote];
-      osc.freq(freq);
-      env.play(osc);
-      for (var i = 1; i < Math.floor(pA * 6); i++) {
-        setTimeout(function (x) {
-          randomNote = Math.floor(Math.random() * scaleArray.length);
-          freq = scaleArray[randomNote];
-          osc.freq(freq);
-          env.play(osc);
-        }, 300 * i);
-      }
-    }
-  }
+playAudioFile(drumHat);
+    
+  
 }

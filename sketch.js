@@ -17,10 +17,7 @@ var socket;
 //
 
 function setupSocketListeners(){
-  debugger
   socket.on("keypress", handleKeyPress);
-
-
 }
 
 function sendKeypress(key){

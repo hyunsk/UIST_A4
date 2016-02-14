@@ -29,9 +29,11 @@ var network = {
     this.onCurrentUniverse();
     this.sendJoined();
     this.onJoined();
+    this.onNewSolarSystem();
   },
   onKeypress: function(){
     socket.on("keypress", function(systemID, key){
+      var system;
       for (var i=0; i< univ.length; i++){
         if (univ[i].id == systemID){
           system = univ[i];
@@ -51,25 +53,38 @@ var network = {
       network.sendCurrentUniverse();
     });
   },
+  sendNewSolarSystem: function() {
+    socket.emit("newSolarSystem", mySolarSystem.exportState());
+  },
+  onNewSolarSystem: function(){
+    socket.on("newSolarSystem", function(system){
+      createFriendsSystem(system);
+    });
+  },
   onCurrentUniverse: function () {
-    socket.on("currentUniverse", function(currentUniverse){
+    socket.on("currentUniverse", function(currentState){
       socket.off("currentUniverse");
-      _.assign(univ, currentUniverse);
-      for(var i=0; i< univ.length; i++){
-        if (univ.id >= mySolarSystem.id){
-          mySolarSystem.id = univ.id+1;
+      var mySystemId = 0;
+
+      _(currentState).forEach(function(system){
+        if (system.id >= mySystemId){
+          mySystemId = system.id+1;
         }
-      }
+      });
+
+      setupUniverse(mySystemId, currentState);
 
       // send mySolarSystem after getting currentUniverse
-      socket.emit("newSolarSystem", mySolarSystem);
-      //setup();
+      network.sendNewSolarSystem();
     });
   },
   sendCurrentUniverse: function() {
     //serialize
-    _.assign(currentUniverse, univ);
-    currentUniverse.push(mySolarSystem);
+    var currentUniverse = [];
+    _(univ).forEach(function(system){
+      currentUniverse.push(system.exportState());
+    });
+    currentUniverse.push(mySolarSystem.exportState());
     socket.emit("currentUniverse", currentUniverse);
   }
 }
@@ -106,6 +121,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight); // Use the full browser window
 
   mySolarSystem = createSolarSystem(
+    0,
     {
       x: windowWidth / 2,
       y: windowHeight/2
@@ -117,6 +133,7 @@ function setup() {
     0,
     generatePlanetsSettings(0)
   );
+
 
   network.setup();
   stars = generateStars(500, 1000, 4);
@@ -131,7 +148,10 @@ function setup() {
 function loadSounds() {
   var soundNames = ["drums", "bass", "melody", "lead", "pad"];
 
-  sunSound = createSound(null, null, loadSound("assets/sounds/drums/drums_00.mp3"));
+  sunSound = createSound(null, null, {
+    soundObj: loadSound("assets/sounds/drums/drums_00.mp3"),
+    volume: 0.05
+  });
 
   for (var i=0; i< soundNames.length; i++){
     for (var j=1; j<=5; j++){
@@ -300,19 +320,42 @@ function generatePlanetsSettings(colorSet){
 // Setup Helpers -------------------------------------------------------------------------------
 //
 
-function createSound(soundIndex, noteIndex, soundObj){
+function setupUniverse(mySystemId, currentState){
+
+  mySolarSystem.id = mySystemId;
+  mySolarSystem.updateSounds(mySystemId % sounds.length);
+
+  _(currentState).forEach(function(system){
+    univ.push(createFriendsSystem(system));
+  })
+}
+
+function createFriendsSystem(system){
+  return createSolarSystem(
+    system.id,
+    {
+      x: windowWidth / 2,
+      y: windowHeight/2
+    },
+    {
+      distanceFactor: 1,
+      sizeFactor: 0.7
+    },
+    generatePlanetsSettings(0),
+    system);
+}
+
+function createSound(soundIndex, noteIndex, options){
   var sound;
 
-  if (_.isUndefined(soundObj)){
+  if (_.isUndefined(options.soundObj)){
     sound = sounds[soundIndex][noteIndex];
   }else{
-    sound = soundObj;
+    sound = options.soundObj;
   }
 
 
-
-
-  sound.setVolume(0.1);
+  sound.setVolume(options.volume);
   sound.playMode('sustain');
 
 
@@ -325,25 +368,37 @@ function createSound(soundIndex, noteIndex, soundObj){
 }
 
 
-function createSolarSystem(center, scale, soundIndex, planetsSettings){
+function createSolarSystem(id, center, scale, soundIndex, planetsSettings, currentState){
   var planet;
+  scale.normalSizeFactor = scale.sizeFactor;
+  scale.zoomSpeed = 0.01;
+  scale.doZoom = false;
+  scale.zoomed = false;
+  if(_.isUndefined(scale.zoomTarget)){
+    scale.zoomTarget = 0.2;
+  }
+
   var system = {
     center: center,
     scale: scale,
     planets: [],
-    id: 0,
-    zoomedOutScale: .2,
-    normalScale: .7,
-    zoomSpeed: .01,
-    doZoom: false,
-    zoomed: true,
-    isClientsSystem: true
+    id: id,
+    isClientsSystem: true,
+    soundIndex: soundIndex
   }
 
 
   for(var i=0; i< planetsSettings.length; i++){
-    planet = createPlanet(planetsSettings[i], createSound(soundIndex, i));
+    planet = createPlanet(planetsSettings[i], createSound(soundIndex, i, {volume: 0.1}));
     system.planets.push(planet);
+  }
+
+  if (!_.isUndefined(currentState)){
+    loadCurrentState(currentState)
+  }
+
+  function loadCurrentState(){
+
   }
 
   function drawSun(){
@@ -373,7 +428,7 @@ function createSolarSystem(center, scale, soundIndex, planetsSettings){
       // draw planet's orbiters
       planet.updateOrbiters(planet.x, planet.y, false);
     }
-  }
+  };
 
   system.drawAndUpdate = function(){
     drawSun();
@@ -390,28 +445,86 @@ function createSolarSystem(center, scale, soundIndex, planetsSettings){
       // draw planet's orbiters
       planet.drawOrbiters(planet.x, planet.y, planet.mute, system.scale);
     }
+  };
+
+  system.updateSounds = function(index){
+    system.soudnIndex = index;
+    _(system.planets).forEach(function(planet, i){
+      planet.sound = createSound(index, i, {volume: 0.1});
+    })
   }
 
   system.zoom = function() {
-    if (system.doZoom == true) {
-      if (system.scale.sizeFactor > system.zoomedOutScale && system.zoomed == true)
-      {
-        system.scale.sizeFactor -= system.zoomSpeed;
-        system.scale.distanceFactor -= system.zoomSpeed * 1.5;
+    var target;
+    if (system.scale.doZoom == true) {
+
+      if (system.scale.zoomed){
+        target = system.scale.normalSizeFactor;
+      }else{
+        target = system.scale.zoomTarget;
       }
-      else if (system.scale.sizeFactor < system.normalScale && system.zoomed == false)
-      {
-        system.scale.sizeFactor += system.zoomSpeed;
-        system.scale.distanceFactor += system.zoomSpeed * 1.5;
-      }
-      else {
-        system.doZoom = false;
-        system.zoomed = !system.zoomed;
+
+      if (system.scale.sizeFactor != target){
+        var delta = system.scale.zoomSpeed;
+        if (system.scale.sizeFactor > target){
+          delta = -delta;
+        }
+        system.scale.sizeFactor += delta;
+        system.scale.distanceFactor += delta * 1.5;
+
+        if(delta < 0){
+          if (system.scale.sizeFactor <= target){
+            system.scale.sizeFactor = target;
+            system.scale.doZoom = false;
+            system.scale.zoomed = !system.scale.zoomed;
+          }
+        }else{
+          if (system.scale.sizeFactor >= target){
+            system.scale.sizeFactor = target;
+            system.scale.doZoom = false;
+            system.scale.zoomed = !system.scale.zoomed;
+          }
+        }
       }
     }
-  }
+  };
 
-  return system
+  system.exportState = function(){
+    var state = {
+      soundIndex: system.soundIndex,
+      id: system.id,
+      planets: []
+    }
+
+    for(var i=0; i < system.planets.length; i++){
+      var planet = system.planets[i];
+      var planetData = {
+        rotation: planet.rotation,
+        mute: planet.mute,
+        orbiters: []
+      }
+
+      for(var j= 0; j < planet.orbiters.length; j++){
+        var moon = planet.orbiters[j];
+        var moonData = {
+          rotation: moon.rotation,
+          orbiters: []
+        }
+
+        if (moon.orbiters.length){
+          moonData.orbiters.push({rotation: moon.orbiters[0].rotation});
+        }
+
+        planetData.orbiters.push(moonData);
+      }
+
+      state.planets.push(planetData);
+    }
+
+    return state;
+  };
+
+  return system;
 }
 
 
@@ -542,7 +655,7 @@ function handleKeyPress(system, key){
       planets[4].clearMoonsAndSatellites();
       break;
     case " ":
-      mySolarSystem.doZoom = true;
+      mySolarSystem.scale.doZoom = true;
       break;
     default:
       didHandleKeypress = false;
@@ -632,16 +745,26 @@ function createPlanet(opt, sound){
     }
   };
 
-  planet.createMoonAndSatellite = function(){
+  planet.createMoonAndSatellite = function(currentState){
     var options;
     var satellite;
     var moon;
 
     options = {};
     _.assign(options, opt.satellite, {rotation: random(0, 2*PI)});
+
+    if (_.isObject(currentState) && _.isObject(currentState.satellite)){
+      _.assign(options, currentState.satellite);
+    }
+
     satellite = createOrbiter(options);
 
     _.assign(options, opt.moon, {rotationRadius: opt.moon.rotationRadius * random(1, 2)});
+
+    if (_.isObject(currentState) && _.isObject(currentState.moon)){
+      _.assign(options, currentState.moon);
+    }
+
 
     moon = createOrbiter(options);
     moon.satellites = moon.orbiters;

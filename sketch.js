@@ -289,7 +289,9 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
-  handleKeyPress(key);
+  if (handleKeyPress(key)){
+    sendKeypress(key);
+  }
 }
 
 function handleKeyPress(key){
@@ -355,9 +357,7 @@ function handleKeyPress(key){
       didHandleKeypress = false;
   }
 
-  if (didHandleKeypress){
-    sendKeypress(key);
-  }
+  return didHandleKeypress;
 }
 
 //

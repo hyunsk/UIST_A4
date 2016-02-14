@@ -2,6 +2,9 @@ var univ = [];
 var mySolarSystem = null;
 var stars;
 var planetBaseSpeed = null;
+var sounds = [];
+var sunSound = null;
+var disableKeyboard = false;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -78,15 +81,8 @@ var network = {
 // Setup
 //
 
-
-// Preload sounds for planets
 function preload() {
-  drumKick2 = loadSound('assets/sounds/drums/drums_00.mp3');
-  drumKick = loadSound('assets/sounds/drums/drums_01.mp3');
-  drumSnare = loadSound('assets/sounds/drums/drums_02.mp3');
-  drumHat = loadSound('assets/sounds/drums/drums_03.mp3');
-  drumSnap = loadSound('assets/sounds/drums/drums_04.mp3');
-  drumConga = loadSound('assets/sounds/drums/drums_05.mp3');
+  loadSounds();
 }
 
 function rotationDelta(bars, bpm, fps){
@@ -105,6 +101,7 @@ function setup() {
   frameRate(60);
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
+
   mySolarSystem = createSolarSystem(
     {
       x: windowWidth / 2,
@@ -114,20 +111,209 @@ function setup() {
       distanceFactor: 1,
       sizeFactor: 0.7
     },
-
-    [{play: function(){}}, {play: function(){}}, {play: function(){}}, {play: function(){}}, {play: function(){}}]
+    0,
+    generatePlanetsSettings()
   );
 
   network.setup();
   stars = generateStars(500, 1000, 4);
 }
 
+
+
+//
+// Configuration -------------------------------------------------------------------------------
+//
+
+function loadSounds() {
+  var soundNames = ["drums", "bass", "melody", "lead", "pad"];
+
+  sunSound = createSound(null, null, loadSound("assets/sounds/drums/drums_00.mp3"));
+
+  for (var i=0; i< soundNames.length; i++){
+    for (var j=1; j<=5; j++){
+      if (!_.isArray(sounds[i])){
+        sounds[i] = [];
+      }
+      sounds[i][j-1] = loadSound("assets/sounds/" + soundNames[i] + "/" + soundNames[i] + "_0" + j + ".mp3");
+    }
+  }
+}
+
+function generatePlanetsSettings(){
+  var planetsSettings = [];
+
+  planetsSettings.push({
+    planet: {
+      initRotation: 0,
+      delta: 1,
+      radius: 8,
+      rotationRadius: 150,
+      color: "#106EE8",
+      flareDecay: 10
+    },
+    moon: {
+      initRotation: PI,
+      delta: 8,
+      radius: 3,
+      rotationRadius: 40,
+      color: "#0FC1A1",
+      flareDecay: 0
+    },
+    satellite: {
+      initRotation: 0,
+      delta: 1.8,
+      radius: 2,
+      rotationRadius: 25,
+      color: "#90E0AB",
+      flareDecay: 0
+    }
+  });
+
+  planetsSettings.push({
+    planet: {
+      initRotation: PI/2,
+      delta: 4,
+      radius: 12,
+      rotationRadius: 270,
+      color: "#37B7B5",
+      flareDecay: 10
+    },
+    moon: {
+      initRotation: PI,
+      delta: 8,
+      radius: 3,
+      rotationRadius: 50,
+      color: "#A0E4E0",
+      flareDecay: 0
+    },
+    satellite: {
+      initRotation: 0,
+      delta: 2,
+      radius: 1,
+      rotationRadius: 15,
+      color: "#C7F6F5",
+      flareDecay: 0
+    }
+  });
+
+  planetsSettings.push({
+    planet: {
+      initRotation: PI,
+      delta: 4,
+      radius: 16,
+      rotationRadius: 380,
+      color: "#59A27A",
+      flareDecay: 10
+    },
+    moon: {
+      initRotation: PI,
+      delta:8,
+      radius: 4,
+      rotationRadius: 40,
+      color: "#FACADE",
+      flareDecay: 0
+    },
+    satellite: {
+      initRotation: 0,
+      delta: 5,
+      radius: 4,
+      rotationRadius: 20,
+      color: "#FACADE",
+      flareDecay: 0
+    }
+  });
+
+  planetsSettings.push({
+    planet: {
+      initRotation: 3*PI/2,
+      delta: 2,
+      radius: 30,
+      rotationRadius: 560,
+      color: "#A56CC1",
+      flareDecay: 35
+    },
+    moon: {
+      initRotation: PI,
+      delta: 8,
+      radius: 6,
+      rotationRadius: 50,
+      color: "#A6ACEC",
+      flareDecay: 0
+    },
+    satellite: {
+      initRotation: 3*PI/2,
+      delta: 4,
+      radius: 8,
+      rotationRadius: 100,
+      color: "#ACE7EF",
+      flareDecay: 0
+    }
+  });
+
+
+  planetsSettings.push({
+    planet: {
+      initRotation: 3*PI/2,
+      delta: 1.7,
+      radius: 40,
+      rotationRadius: 760,
+      color: "#E14242",
+      flareDecay: 40
+    },
+    moon: {
+      initRotation: PI,
+      delta: 8,
+      radius: 10,
+      rotationRadius: 150,
+      color: "#EACD65",
+      flareDecay: 0
+    },
+    satellite: {
+      initRotation: 3*PI/2,
+      delta: 4,
+      radius: 6,
+      rotationRadius: 40,
+      color: "#8D3434",
+      flareDecay: 0
+    }
+  });
+
+  return planetsSettings;
+}
+
+
 //
 // Setup Helpers -------------------------------------------------------------------------------
 //
 
-function createSolarSystem(center, scale, sounds){
-  var kick, snare, hat, synth, bass;
+function createSound(soundIndex, noteIndex, soundObj){
+  var sound;
+
+  if (_.isUndefined(soundObj)){
+    sound = sounds[soundIndex][noteIndex];
+  }else{
+    sound = soundObj;
+  }
+
+
+
+
+  sound.setVolume(0.1);
+  sound.playMode('sustain');
+
+
+  return {
+    play: function(pA, pB){
+      sound.play();
+    }
+  }
+
+}
+
+
+function createSolarSystem(center, scale, soundIndex, planetsSettings){
+  var planet;
   var system = {
     center: center,
     scale: scale,
@@ -137,176 +323,15 @@ function createSolarSystem(center, scale, sounds){
     normalScale: .7,
     zoomSpeed: .01,
     doZoom: false,
-    zoomed: true
+    zoomed: true,
+    isClientsSystem: true
   }
 
-  // create planet kick
-  // first ring
-  kick = createPlanet(
-    {
-      initRotation: 0,
-      delta: 1,
-      radius: 8,
-      rotationRadius: 150,
-      color: "#106EE8",
-      flareDecay: 10
-    },
-    {
-      initRotation: PI,
-      delta: 16,
-      radius: 3,
-      rotationRadius: 40,
-      color: "#0FC1A1",
-      flareDecay: 0
-    },
-    {
-      initRotation: 0,
-      delta: 1.8,
-      radius: 2,
-      rotationRadius: 25,
-      color: "#90E0AB",
-      flareDecay: 0
-    },
-    sounds.shift()
-  );
 
-  // add planet kick to univ
-  system.planets.push(kick);
-
-
-  // create planet hat
-  // second ring
-  hat = createPlanet(
-    {
-      initRotation: PI/2,
-      delta: 4,
-      radius: 12,
-      rotationRadius: 270,
-      color: "#37B7B5",
-      flareDecay: 10
-    },
-    {
-      initRotation: PI,
-      delta: 16,
-      radius: 3,
-      rotationRadius: 50,
-      color: "#A0E4E0",
-      flareDecay: 0
-    },
-    {
-      initRotation: 0,
-      delta: 2,
-      radius: 1,
-      rotationRadius: 15,
-      color: "#C7F6F5",
-      flareDecay: 0
-    },
-    sounds.shift()
-  );
-
-  // add planet kick to univ
-  system.planets.push(hat);
-
-
-  // create planet snare
-  // third ring
-  snare = createPlanet(
-    {
-      initRotation: PI,
-      delta: 4,
-      radius: 16,
-      rotationRadius: 380,
-      color: "#59A27A",
-      flareDecay: 10
-    },
-    {
-      initRotation: PI,
-      delta:8,
-      radius: 4,
-      rotationRadius: 40,
-      color: "#FACADE",
-      flareDecay: 0
-    },
-    {
-      initRotation: 0,
-      delta: 5,
-      radius: 4,
-      rotationRadius: 20,
-      color: "#FACADE",
-      flareDecay: 0
-    },
-    sounds.shift()
-  );
-
-  // add planet snare to univ
-  system.planets.push(snare);
-
-
-  // create planet synth
-  // fourth ring
-  synth = createPlanet(
-    {
-      initRotation: 3*PI/2,
-      delta: 2,
-      radius: 30,
-      rotationRadius: 560,
-      color: "#A56CC1",
-      flareDecay: 35
-    },
-    {
-      initRotation: PI,
-      delta: 4,
-      radius: 6,
-      rotationRadius: 50,
-      color: "#A6ACEC",
-      flareDecay: 0
-    },
-    {
-      initRotation: 3*PI/2,
-      delta: 4,
-      radius: 8,
-      rotationRadius: 100,
-      color: "#ACE7EF",
-      flareDecay: 0
-    },
-    sounds.shift()
-  );
-
-  // add planet synth to univ
-  system.planets.push(synth);
-
-  // create planet bass
-  // fifth ring
-  bass = createPlanet({
-      initRotation: 3*PI/2,
-      delta: 1.7,
-      radius: 40,
-      rotationRadius: 760,
-      color: "#E14242",
-      flareDecay: 40
-    },
-    {
-      initRotation: PI,
-      delta: 4,
-      radius: 10,
-      rotationRadius: 150,
-      color: "#EACD65",
-      flareDecay: 0
-    },
-    {
-      initRotation: 3*PI/2,
-      delta: 4,
-      radius: 6,
-      rotationRadius: 40,
-      color: "#8D3434",
-      flareDecay: 0
-    },
-    sounds.shift()
-  );
-
-  // add planet bass to univ
-  system.planets.push(bass);
-
+  for(var i=0; i< planetsSettings.length; i++){
+    planet = createPlanet(planetsSettings[i], createSound(soundIndex, i));
+    system.planets.push(planet);
+  }
 
   function drawSun(){
     var diameter = 100 * system.scale.sizeFactor;
@@ -314,7 +339,7 @@ function createSolarSystem(center, scale, sounds){
     if (frameCount % 30 == 0){
       diameter = 115 * system.scale.sizeFactor;
 
-      playAudioFile(drumKick);
+      sunSound.play();
 
       //fill("rgb(250, 250, 250)");
     } else {
@@ -437,6 +462,9 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
+  if (disableKeyboard){
+    return;
+  }
   if (handleKeyPress(mySolarSystem, key)){
     network.sendKeypress(key);
   }
@@ -544,14 +572,14 @@ function draw() {
 
 
 
-function createPlanet(options, moonOptions, satelliteOptions, sound){
+function createPlanet(opt, sound){
   var planet, triggerRotation, mapParams;
 
   triggerRotation = PI;
 
-  planet = createOrbiter(options);
+  planet = createOrbiter(opt.planet);
   planet.moons = planet.orbiters;
-  _.assign(moonOptions, {rotation: triggerRotation});
+  _.assign(opt.moon, {rotation: triggerRotation});
 
 
   planet.mute = false;
@@ -594,10 +622,10 @@ function createPlanet(options, moonOptions, satelliteOptions, sound){
     var moon;
 
     options = {};
-    _.assign(options, satelliteOptions, {rotation: random(0, 2*PI)});
+    _.assign(options, opt.satellite, {rotation: random(0, 2*PI)});
     satellite = createOrbiter(options);
 
-    _.assign(options, moonOptions, {rotationRadius: moonOptions.rotationRadius * random(1, 2)});
+    _.assign(options, opt.moon, {rotationRadius: opt.moon.rotationRadius * random(1, 2)});
 
     moon = createOrbiter(options);
     moon.satellites = moon.orbiters;
@@ -888,23 +916,3 @@ ParticleSystem.prototype.run = function() {
 // Draw
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Sounds
-//
-
-// Test for audio file playback
-function playAudioFile (sound, pA, pB) {
-  sound.setVolume(0.1);
-  sound.playMode('sustain');
-  sound.play();
-}
-
-// Create hat
-function createHat() {
-playAudioFile(drumHat);
-    
-  
-}

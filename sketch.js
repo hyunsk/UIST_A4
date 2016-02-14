@@ -16,7 +16,8 @@ var socket;
 // Socket.io
 //
 
-function setupSocket(){
+function setupSocketListeners(){
+  debugger
   socket.on("keypress", handleKeyPress);
 
 
@@ -51,7 +52,8 @@ function setup() {
 
   // socket.io setup
   socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-  socket.onopen = setupSocket;
+
+  setupSocketListeners();
 
 
   planetBaseSpeed = rotationDelta(110, 60);
@@ -271,7 +273,6 @@ function generateStars(minimum, maximum, maxRadius){
       alpha: random(1, 255)
     }
 
-    //console.log(star.r, star.y, star.r, star.alpha)
     stars.push(star);
   }
 }
@@ -353,7 +354,7 @@ function handleKeyPress(key){
     default:
       didHandleKeypress = false;
   }
-  
+
   if (didHandleKeypress){
     sendKeypress(key);
   }
@@ -883,7 +884,6 @@ function createBass() {
 
   return {
     play: function(pA, pB){
-      console.log("play kick1")
       sub.play(pA, pB);
       noise.play(pA, pB);
     },

@@ -112,7 +112,7 @@ function setup() {
       sizeFactor: 0.7
     },
     0,
-    generatePlanetsSettings()
+    generatePlanetsSettings(0)
   );
 
   network.setup();
@@ -140,113 +140,123 @@ function loadSounds() {
   }
 }
 
-function generatePlanetsSettings(){
+function generatePlanetsSettings(colorSet){
   var planetsSettings = [];
+
+  var colors = [[ "#106EE8", "#0FC1A1", "#90E0AB",
+                  "#37B7B5", "#A0E4E0", "#C7F6F5",
+                  "#59A27A", "#FACADE", "#FACADE",
+                  "#A56CC1", "#A6ACEC", "#ACE7EF",
+                  "#E14242", "#EACD65", "#8D3434"]];
+
+  var i = 0;
+
+
 
   planetsSettings.push({
     planet: {
-      initRotation: 0,
+      rotation: 0,
       delta: 1,
       radius: 8,
       rotationRadius: 150,
-      color: "#106EE8",
+      color: colors[colorSet][i++],
       flareDecay: 10
     },
     moon: {
-      initRotation: PI,
+      rotation: PI,
       delta: 8,
       radius: 3,
       rotationRadius: 40,
-      color: "#0FC1A1",
+      color: colors[colorSet][i++],
       flareDecay: 0
     },
     satellite: {
-      initRotation: 0,
+      rotation: 0,
       delta: 1.8,
       radius: 2,
       rotationRadius: 25,
-      color: "#90E0AB",
+      color: colors[colorSet][i++],
       flareDecay: 0
     }
   });
 
   planetsSettings.push({
     planet: {
-      initRotation: PI/2,
+      rotation: PI/2,
       delta: 4,
       radius: 12,
       rotationRadius: 270,
-      color: "#37B7B5",
+      color: colors[colorSet][i++],
       flareDecay: 10
     },
     moon: {
-      initRotation: PI,
+      rotation: PI,
       delta: 8,
       radius: 3,
       rotationRadius: 50,
-      color: "#A0E4E0",
+      color: colors[colorSet][i++],
       flareDecay: 0
     },
     satellite: {
-      initRotation: 0,
+      rotation: 0,
       delta: 2,
       radius: 1,
       rotationRadius: 15,
-      color: "#C7F6F5",
+      color: colors[colorSet][i++],
       flareDecay: 0
     }
   });
 
   planetsSettings.push({
     planet: {
-      initRotation: PI,
+      rotation: PI,
       delta: 4,
       radius: 16,
       rotationRadius: 380,
-      color: "#59A27A",
+      color: colors[colorSet][i++],
       flareDecay: 10
     },
     moon: {
-      initRotation: PI,
+      rotation: PI,
       delta:8,
       radius: 4,
       rotationRadius: 40,
-      color: "#FACADE",
+      color: colors[colorSet][i++],
       flareDecay: 0
     },
     satellite: {
-      initRotation: 0,
+      rotation: 0,
       delta: 5,
       radius: 4,
       rotationRadius: 20,
-      color: "#FACADE",
+      color: colors[colorSet][i++],
       flareDecay: 0
     }
   });
 
   planetsSettings.push({
     planet: {
-      initRotation: 3*PI/2,
+      rotation: 3*PI/2,
       delta: 2,
       radius: 30,
       rotationRadius: 560,
-      color: "#A56CC1",
+      color: colors[colorSet][i++],
       flareDecay: 35
     },
     moon: {
-      initRotation: PI,
+      rotation: PI,
       delta: 8,
       radius: 6,
       rotationRadius: 50,
-      color: "#A6ACEC",
+      color: colors[colorSet][i++],
       flareDecay: 0
     },
     satellite: {
-      initRotation: 3*PI/2,
+      rotation: 3*PI/2,
       delta: 4,
       radius: 8,
       rotationRadius: 100,
-      color: "#ACE7EF",
+      color: colors[colorSet][i++],
       flareDecay: 0
     }
   });
@@ -254,27 +264,27 @@ function generatePlanetsSettings(){
 
   planetsSettings.push({
     planet: {
-      initRotation: 3*PI/2,
+      rotation: 3*PI/2,
       delta: 1.7,
       radius: 40,
       rotationRadius: 760,
-      color: "#E14242",
+      color: colors[colorSet][i++],
       flareDecay: 40
     },
     moon: {
-      initRotation: PI,
+      rotation: PI,
       delta: 8,
       radius: 10,
       rotationRadius: 150,
-      color: "#EACD65",
+      color: colors[colorSet][i++],
       flareDecay: 0
     },
     satellite: {
-      initRotation: 3*PI/2,
+      rotation: 3*PI/2,
       delta: 4,
       radius: 6,
       rotationRadius: 40,
-      color: "#8D3434",
+      color: colors[colorSet][i++],
       flareDecay: 0
     }
   });

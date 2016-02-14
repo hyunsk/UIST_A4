@@ -78,7 +78,12 @@ function createSolarSystem(center, scale, sounds){
   var system = {
     center: center,
     scale: scale,
-    planets: []
+    planets: [],
+    zoomedOutScale: .2,
+    normalScale: .7,
+    zoomSpeed: .01,
+    doZoom: false,
+    zoomed: true
   }
 
   // create planet kick
@@ -294,6 +299,25 @@ function createSolarSystem(center, scale, sounds){
     }
   }
 
+  system.zoom = function() {
+    if (system.doZoom == true) {
+      if (system.scale.sizeFactor > system.zoomedOutScale && system.zoomed == true)
+      {
+        system.scale.sizeFactor -= system.zoomSpeed;
+        system.scale.distanceFactor -= system.zoomSpeed * 1.5;
+      }
+      else if (system.scale.sizeFactor < system.normalScale && system.zoomed == false)
+      {
+        system.scale.sizeFactor += system.zoomSpeed;
+        system.scale.distanceFactor += system.zoomSpeed * 1.5;
+      }
+      else {
+        system.doZoom = false;
+        system.zoomed = !system.zoomed;
+      }
+    }
+  }
+
   return system
 }
 
@@ -420,6 +444,9 @@ function handleKeyPress(solarSystem, key){
     case "B":
       planets[4].clearMoonsAndSatellites();
       break;
+    case " ":
+      mySolarSystem.doZoom = true;
+      break;
     default:
       didHandleKeypress = false;
   }
@@ -448,12 +475,14 @@ function draw() {
   stars.drawStars();
 
   mySolarSystem.drawAndUpdate();
+  mySolarSystem.zoom();
+
+
 }
 
 //
 // Draw Helpers -------------------------------------------------------------------------------
 //
-
 
 
 

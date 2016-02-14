@@ -31,6 +31,17 @@ function sendKeypress(key){
 // Setup
 //
 
+
+// Preload sounds for planets
+function preload() {
+  drumKick2 = loadSound('assets/sounds/drums/drums_00.mp3');
+  drumKick = loadSound('assets/sounds/drums/drums_01.mp3');
+  drumSnare = loadSound('assets/sounds/drums/drums_02.mp3');
+  drumHat = loadSound('assets/sounds/drums/drums_03.mp3');
+  drumSnap = loadSound('assets/sounds/drums/drums_04.mp3');
+  drumConga = loadSound('assets/sounds/drums/drums_05.mp3');
+}
+
 function rotationDelta(bpm, fps){
   var beats, spb, revTime, frames;
 
@@ -259,6 +270,9 @@ function createSolarSystem(center, scale, sounds){
 
     if (frameCount % 30 == 0){
       diameter = 115 * system.scale.sizeFactor;
+
+      playAudioFile(drumKick);
+
       //fill("rgb(250, 250, 250)");
     } else {
 
@@ -837,97 +851,23 @@ ParticleSystem.prototype.run = function() {
 // Sounds
 //
 
+// Test for audio file playback
+function playAudioFile (sound, pA, pB) {
+  sound.setVolume(0.1);
+  sound.playMode('sustain');
+  sound.play();
+}
+
 // Create hat
 function createHat() {
-
-  var noise, env;
-
-  noise = new p5.Noise(); // other types include 'brown' and 'pink'
-  noise.start();
-
-  // multiply noise volume by 0
-  // (keep it quiet until we're ready to make noise!)
-  noise.amp(0);
-
-  // set attackTime, decayTime, sustainRatio, releaseTime
-  env = new p5.Env();
-
-  return {
-    play: function(pA, pB){
-      env.set(0.001, pA, pB * 0.25, 0.1);
-      env.play(noise);
-    },
-    destroy: function(){
-      noise.stop();
-      env.stop();
-
-      delete noise;
-      delete env;
-    }
-  }
+playAudioFile(drumHat);
+    
+  
 }
 
 // Create kick
 function createBass() {
-  function createSub() {
- 
-    var env, osc;
-    osc = new p5.Oscillator(); // other types include 'brown' and 'pink'
-    osc.setType('sine');
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    osc.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env();
-
-    // play noise
-
-    return{
-      play: function(pA, pB){
-        pA = map(pA, 0, 1, 0.5, 1);
-        pB = map(pB, 0, 1, 0.5, 1);
-        osc.freq(40)
-        osc.start();
-        env.set(0.001, pB, pA, 0.5);
-        env.play(osc);
-      },
-      destroy: function(){
-        osc.stop();
-        env.stop();
-        delete osc;
-        delete env;
-      }
-    }
-  }
-
-
-  function createNoise() {
-    var noise, env;
-
-    noise = new p5.Noise(); // other types include 'brown' and 'pink'
-    noise.start();
-
-    // multiply noise volume by 0
-    // (keep it quiet until we're ready to make noise!)
-    noise.amp(0);
-
-    // set attackTime, decayTime, sustainRatio, releaseTime
-    env = new p5.Env(0.001, .2, .001, 0.1);
-
-    // play noise
-    return {
-      play: function(pA, pB){
-        env.play(noise);
-      },
-      destroy: function(){
-        noise.stop();
-        env.stop();
-        delete noise;
-        delete env;
-      }
-    }
+  playAudioFile(drumKick);
   }
 
   var sub = createSub();
@@ -1024,7 +964,8 @@ function createKick() {
     // play noise
     return {
       play: function(pA, pB){
-        env.play(noise);
+        drumKick.setVolume(0.1);
+        drumHat.play();
       }
     }
   }

@@ -4,7 +4,10 @@ var stars;
 var planetBaseSpeed = null;
 var sounds = [];
 var sunSound = null;
-var disableKeyboard = false;
+var keyboardDisabled = false;
+var fps = 60;
+var bpm = 120;
+var fpb = framesPerBeat();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -85,7 +88,7 @@ function preload() {
   loadSounds();
 }
 
-function rotationDelta(bars, bpm, fps){
+function rotationDelta(bars){
   var beats, spb, revTime, frames;
 
   beats = bars * 4;
@@ -97,8 +100,8 @@ function rotationDelta(bars, bpm, fps){
 }
 
 function setup() {
-  planetBaseSpeed = rotationDelta(16, 120, 60);
-  frameRate(60);
+  planetBaseSpeed = rotationDelta(16);
+  frameRate(fps);
 
   createCanvas(windowWidth, windowHeight); // Use the full browser window
 
@@ -346,13 +349,11 @@ function createSolarSystem(center, scale, soundIndex, planetsSettings){
   function drawSun(){
     var diameter = 100 * system.scale.sizeFactor;
 
-    if (frameCount % 30 == 0){
+    if (frameCount % fpb == 0){
       diameter = 115 * system.scale.sizeFactor;
 
       sunSound.play();
 
-      //fill("rgb(250, 250, 250)");
-    } else {
 
     }
 
@@ -472,7 +473,7 @@ function generateStars(minimum, maximum, maxRadius){
 //
 
 function keyPressed() {
-  if (disableKeyboard){
+  if (keyboardDisabled){
     return;
   }
   if (handleKeyPress(mySolarSystem, key)){
@@ -580,6 +581,11 @@ function draw() {
 // Draw Helpers -------------------------------------------------------------------------------
 //
 
+function framesPerBeat(){
+  var bps = bpm / 60;
+  return fps / bps;
+}
+
 
 
 function createPlanet(opt, sound){
@@ -674,7 +680,7 @@ function createOrbiter(options){
 
   orbiter = {};
   defaults = {
-    rotation: options.initRotation,
+    initRotation: options.rotation,
     initRadius: options.radius,
     flareAge: 0,
     flareDecay: 0,

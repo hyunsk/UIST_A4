@@ -384,7 +384,7 @@ function createFriendsSystem(system){
     y += windowHeight/2;
   }
 
-  var sizeFactor = randomGaussian(1, 0.01);
+  var sizeFactor = randomGaussian(1, 0.2);
 
   var obj = createSolarSystem(
     system.id,
@@ -394,7 +394,7 @@ function createFriendsSystem(system){
     },
     {
       distanceFactor: 0.1 * sizeFactor,
-      zoomTarget: 0.3 * sizeFactor,
+      zoomTarget: 0.15 * sizeFactor,
       sizeFactor: 0.06 * sizeFactor
     },
     system.id % sounds.length,

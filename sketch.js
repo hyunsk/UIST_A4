@@ -682,7 +682,7 @@ function keyPressed() {
 }
 
 function handleKeyPress(system, key){
-  var didHandleKeypress = true;
+  var sendKeypress = true;
   var planets = system.planets;
 
   switch(key){
@@ -747,12 +747,13 @@ function handleKeyPress(system, key){
       _(univ).forEach(function(system){
         system.scale.doZoom = true;
       });
+      sendKeypress = false;
       break;
     default:
-      didHandleKeypress = false;
+      sendKeypress = false;
   }
 
-  return didHandleKeypress;
+  return sendKeypress;
 }
 
 function handleMouseToMasterSound(){

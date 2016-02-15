@@ -180,13 +180,40 @@ function loadSounds() {
 }
 
 function generatePlanetsSettings(colorSet){
+
+  console.log("generate planet settings", colorSet);
   var planetsSettings = [];
 
   var colors = [[ "#106EE8", "#0FC1A1", "#90E0AB",
                   "#37B7B5", "#A0E4E0", "#C7F6F5",
                   "#59A27A", "#FACADE", "#FACADE",
                   "#A56CC1", "#A6ACEC", "#ACE7EF",
-                  "#E14242", "#EACD65", "#8D3434"]];
+                  "#E14242", "#EACD65", "#8D3434"],
+                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
+                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#4D606E",
+                  "#D3D4D8", "#4D606E", "#F5F5F5",
+                  "#083D56", "#F5F5F5", "#D3D4D8"],
+                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
+                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#4D606E",
+                  "#D3D4D8", "#4D606E", "#F5F5F5",
+                  "#083D56", "#F5F5F5", "#D3D4D8"],
+                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
+                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#4D606E",
+                  "#D3D4D8", "#4D606E", "#F5F5F5",
+                  "#083D56", "#F5F5F5", "#D3D4D8"],
+                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
+                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#4D606E",
+                  "#D3D4D8", "#4D606E", "#F5F5F5",
+                  "#083D56", "#F5F5F5", "#D3D4D8"],
+                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
+                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#4D606E",
+                  "#D3D4D8", "#4D606E", "#F5F5F5",
+                  "#083D56", "#F5F5F5", "#D3D4D8"]];
 
   var i = 0;
 
@@ -305,7 +332,7 @@ function generatePlanetsSettings(colorSet){
     planet: {
       rotation: 3*PI/2,
       delta: 1.7,
-      radius: 40,
+      radius: 26,
       rotationRadius: 760,
       color: colors[colorSet][i++],
       flareDecay: 40
@@ -371,7 +398,7 @@ function createFriendsSystem(system){
       sizeFactor: 0.06 * sizeFactor
     },
     system.id % sounds.length,
-    generatePlanetsSettings(0),
+    generatePlanetsSettings(system.id % sounds.length + 1),
     system,
     false
   );
@@ -417,13 +444,21 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
     isClientsSystem = true;
   }
 
+  console.log("colorSet", (isClientsSystem && 0)||(soundIndex + 1) );
+
+  var colorSet = 0;
+  if(!isClientsSystem){
+    colorSet = soundIndex+1;
+  }
+
   var system = {
     center: center,
     scale: scale,
     planets: [],
     id: id,
     isClientsSystem: isClientsSystem,
-    soundIndex: soundIndex
+    soundIndex: soundIndex,
+    colorSet: colorSet
   }
 
 
@@ -448,6 +483,8 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   }
 
   function drawSun(){
+
+    var colors = ["#FF9757", "#3FBAC2", "#3FBAC2", "#3FBAC2", "#3FBAC2", "#3FBAC2"];
     var diameter = 100 * system.scale.sizeFactor;
 
     if (frameCount % fpb == 0){
@@ -458,7 +495,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
       }
     }
 
-    fill('#FF9757');
+    fill(colors[system.colorSet]);
     ellipse(system.center.x, system.center.y, diameter, diameter);
 
   }

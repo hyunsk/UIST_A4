@@ -189,21 +189,25 @@ function generatePlanetsSettings(colorSet){
                   "#59A27A", "#FACADE", "#FACADE",
                   "#A56CC1", "#A6ACEC", "#ACE7EF",
                   "#E14242", "#EACD65", "#8D3434"],
+
                 [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
                   "#F5F5F5", "#F5F5F5", "#F5F5F5",
                   "#4D606E", "#4D606E", "#4D606E",
                   "#D3D4D8", "#4D606E", "#F5F5F5",
                   "#083D56", "#F5F5F5", "#D3D4D8"],
-                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
-                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
-                  "#4D606E", "#4D606E", "#4D606E",
-                  "#D3D4D8", "#4D606E", "#F5F5F5",
-                  "#083D56", "#F5F5F5", "#D3D4D8"],
-                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
-                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
-                  "#4D606E", "#4D606E", "#4D606E",
-                  "#D3D4D8", "#4D606E", "#F5F5F5",
-                  "#083D56", "#F5F5F5", "#D3D4D8"],
+
+                [ "#ABD4C1", "#E5F6C6", "#D3D4D8",
+                  "#7E858B", "#ABD4C1", "#F5F5F5",
+                  "#4D606E", "#4D606E", "#5D414D",
+                  "#E5F6C6", "#4D606E", "#F5F5F5",
+                  "#5D414D", "#F5F5F5", "#ABD4C1"],
+
+                [ "#C98B70", "#F8E796", "#F8E796",
+                  "#F8E796", "#F5F5F5", "#F8E796",
+                  "#635270", "#F8E796", "#4D606E",
+                  "#0E5F76", "#0E5F76", "#F5F5F5",
+                  "#363863", "#635270", "#0E5F76"],
+
                 [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
                   "#F5F5F5", "#F5F5F5", "#F5F5F5",
                   "#4D606E", "#4D606E", "#4D606E",
@@ -484,7 +488,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
 
   function drawSun(){
 
-    var colors = ["#FF9757", "#3FBAC2", "#3FBAC2", "#3FBAC2", "#3FBAC2", "#3FBAC2"];
+    var colors = ["#FF9757", "#3FBAC2", "#E5F6C6", "#F8E796", "#3FBAC2", "#3FBAC2"];
     var diameter = 100 * system.scale.sizeFactor;
 
     if (frameCount % fpb == 0){

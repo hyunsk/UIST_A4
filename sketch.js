@@ -8,6 +8,7 @@ var sunSound = null;
 var keyboardDisabled = false;
 var fps = 60;
 var bpm = 120;
+var spb = 1 / (bpm / 60);
 var fpb = framesPerBeat();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -208,16 +209,17 @@ function generatePlanetsSettings(colorSet){
                   "#0E5F76", "#0E5F76", "#F5F5F5",
                   "#363863", "#635270", "#0E5F76"],
 
-                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
-                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
-                  "#4D606E", "#4D606E", "#4D606E",
-                  "#D3D4D8", "#4D606E", "#F5F5F5",
-                  "#083D56", "#F5F5F5", "#D3D4D8"],
-                [ "#D3D4D8", "#D3D4D8", "#D3D4D8",
-                  "#F5F5F5", "#F5F5F5", "#F5F5F5",
-                  "#4D606E", "#4D606E", "#4D606E",
-                  "#D3D4D8", "#4D606E", "#F5F5F5",
-                  "#083D56", "#F5F5F5", "#D3D4D8"]];
+                [ "#82656D", "#D3D4D8", "#D3D4D8",
+                  "#92A7E0", "#F5F5F5", "#F5F5F5",
+                  "#5A525E", "#4D606E", "#4D606E",
+                  "#343156", "#4D606E", "#F5F5F5",
+                  "#283D4C", "#F5F5F5", "#D3D4D8"],
+
+                [ "#D6EEFF", "#D3D4D8", "#D3D4D8",
+                  "#343156", "#F5F5F5", "#F5F5F5",
+                  "#6A7062", "#4D606E", "#4D606E",
+                  "#AAADC4", "#4D606E", "#F5F5F5",
+                  "#8D909B", "#F5F5F5", "#D3D4D8"]];
 
   var i = 0;
 
@@ -411,7 +413,10 @@ function createFriendsSystem(system){
 }
 
 function createSound(soundIndex, noteIndex, options){
-  var sound;
+  var sound, filter, delay;
+
+  filter = new p5.BandPass();
+  delay = new p5.Delay();
 
   if (_.isUndefined(options.soundObj)){
     sound = sounds[soundIndex][noteIndex];
@@ -419,15 +424,59 @@ function createSound(soundIndex, noteIndex, options){
     sound = options.soundObj;
   }
 
-
   sound.setVolume(options.volume);
   sound.playMode('sustain');
 
   sound.disconnect();
-  sound.connect(masterSound.sound);
+
+  switch(soundIndex){
+    case 0:
+      if (noteIndex == 2){
+        sound.connect(masterSound.sound);
+      }else{
+        sound.connect(delay);
+        delay.connect(masterSound.sound);
+        delay.delayTime(spb);
+        delay.amp(0.5);
+      }
+      break;
+    case 1:
+      sound.connect(masterSound.sound);
+      break;
+    case 2:
+      sound.connect(masterSound.sound);
+      break;
+    case 3:
+      sound.connect(masterSound.sound);
+      break;
+    case 4:
+      sound.connect(masterSound.sound);
+      break;
+    default:
+      sound.connect(masterSound.sound);
+  }
+
+  function updateEffects(pA, pB){
+    switch(soundIndex){
+      case 0:
+        var pan = map(pA, 0, 1, -0.7, 0.7);
+        delay.feedback(map(pB, 0, 1, 0.00001, 0.8));
+        sound.pan(pan);
+        break;
+      default:
+        var pan = map(pA, 0, 1, -0.7, 0.7);
+        sound.pan(pan);
+        break;
+    }
+  }
+
+
 
   return {
     play: function(pA, pB){
+      if (_.isNumber(pA) && _.isNumber(pB)){
+        updateEffects(pA, pB);
+      }
       sound.play();
     }
   }
@@ -488,7 +537,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
 
   function drawSun(){
 
-    var colors = ["#FF9757", "#3FBAC2", "#E5F6C6", "#F8E796", "#3FBAC2", "#3FBAC2"];
+    var colors = ["#FF9757", "#3FBAC2", "#E5F6C6", "#F8E796", "#5A525E", "#6A7062"];
     var diameter = 100 * system.scale.sizeFactor;
 
     if (frameCount % fpb == 0){
@@ -683,6 +732,9 @@ function keyPressed() {
 
 function handleKeyPress(system, key){
   var sendKeypress = true;
+  if(_.isUndefined(system.planets)){
+    return;
+  }
   var planets = system.planets;
 
   switch(key){

@@ -412,7 +412,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
 
 
   for(var i=0; i< planetsSettings.length; i++){
-    planet = createPlanet(planetsSettings[i], createSound(soundIndex, i, {volume: 0.1}));
+    planet = createPlanet(planetsSettings[i], createSound(soundIndex, i, {volume: 0.2}));
     system.planets.push(planet);
   }
 
@@ -425,9 +425,8 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
       var systemPlanet = system.planets[i];
       systemPlanet.rotation = planet.rotation;
       systemPlanet.mute = planet.mute;
-      _(currentState.planets.orbiters).forEach(function(moon){
-
-
+      _(planet.orbiters).forEach(function(moon, j){
+        systemPlanet.createMoonAndSatellite(moon)
       });
     });
   }
@@ -481,7 +480,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   system.updateSounds = function(index){
     system.soundIndex = index;
     _(system.planets).forEach(function(planet, i){
-      planet.sound = createSound(index, i, {volume: 0.1});
+      planet.sound = createSound(index, i, {volume: 0.2});
     })
   }
 
@@ -698,7 +697,7 @@ function handleKeyPress(system, key){
 function handleMouseToMasterSound(){
   var freq = map(mouseX, 0, width, 20, 10000);
 
-  var res = map(mouseY, height / 4, 3 * height / 4, 0, 10);
+  var res = map(mouseY, height / 4, 3 * height / 4, 0, 3);
 
   masterSound.set(freq, res)
 }
@@ -797,16 +796,16 @@ function createPlanet(opt, sound){
     options = {};
     _.assign(options, opt.satellite, {rotation: random(0, 2*PI)});
 
-    if (_.isObject(currentState) && _.isObject(currentState.satellite)){
-      _.assign(options, currentState.satellite);
+    if(_.isObject(currentState)){
+      options.rotation = currentState.rotation;
     }
 
     satellite = createOrbiter(options);
 
     _.assign(options, opt.moon, {rotationRadius: opt.moon.rotationRadius * random(1, 2)});
 
-    if (_.isObject(currentState) && _.isObject(currentState.moon)){
-      _.assign(options, currentState.moon);
+    if(_.isObject(currentState)){
+      options.rotation = currentState.orbiters[0].rotation;
     }
 
 

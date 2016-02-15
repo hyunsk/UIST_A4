@@ -129,7 +129,7 @@ function setup() {
       y: windowHeight/2
     },
     {
-      distanceFactor: 1,
+      distanceFactor: 0.7,
       sizeFactor: 0.7
     },
     0,
@@ -344,15 +344,27 @@ function setupUniverse(mySystemId, currentState){
 }
 
 function createFriendsSystem(system){
+
+  var x = randomGaussian(windowWidth/4, windowWidth/12);
+  var y = randomGaussian(windowHeight/4, windowHeight/12);
+  if (random()>0.5){
+    x += windowWidth/2;
+  }
+
+  if (random()>0.5){
+    y += windowHeight/2;
+  }
+
   var obj = createSolarSystem(
     system.id,
     {
-      x: windowWidth / 2,
-      y: windowHeight/2
+      x: x,
+      y: y
     },
     {
-      distanceFactor: 1,
-      sizeFactor: 0.7
+      distanceFactor: 0.1,
+      zoomTarget: 0.3,
+      sizeFactor: 0.06
     },
     system.id % sounds.length,
     generatePlanetsSettings(0),
@@ -395,7 +407,7 @@ function createSolarSystem(id, center, scale, soundIndex, planetsSettings, curre
   scale.doZoom = false;
   scale.zoomed = false;
   if(_.isUndefined(scale.zoomTarget)){
-    scale.zoomTarget = 0.2;
+    scale.zoomTarget = 0.4;
   }
   if(_.isUndefined(isClientsSystem)){
     isClientsSystem = true;
@@ -686,6 +698,10 @@ function handleKeyPress(system, key){
       break;
     case " ":
       mySolarSystem.scale.doZoom = true;
+
+      _(univ).forEach(function(system){
+        system.scale.doZoom = true;
+      });
       break;
     default:
       didHandleKeypress = false;

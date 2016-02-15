@@ -47,10 +47,12 @@ var network = {
     socket.emit("keypress", mySolarSystem.id, key);
   },
   sendJoined: function () {
+    console.log("I joined")
     socket.emit("joined");
   },
   onJoined: function() {
     socket.on("joined", function(){
+      console.log("someone joined")
       network.sendCurrentUniverse();
     });
   },
@@ -86,6 +88,7 @@ var network = {
       currentUniverse.push(system.exportState());
     });
     currentUniverse.push(mySolarSystem.exportState());
+    console.log("sent current univ state");
     socket.emit("currentUniverse", currentUniverse);
   }
 }
@@ -344,7 +347,6 @@ function setupUniverse(mySystemId, currentState){
 }
 
 function createFriendsSystem(system){
-
   var x = randomGaussian(windowWidth/4, windowWidth/12);
   var y = randomGaussian(windowHeight/4, windowHeight/12);
   if (random()>0.5){
@@ -355,6 +357,8 @@ function createFriendsSystem(system){
     y += windowHeight/2;
   }
 
+  var sizeFactor = randomGaussian(1, 0.01);
+
   var obj = createSolarSystem(
     system.id,
     {
@@ -362,9 +366,9 @@ function createFriendsSystem(system){
       y: y
     },
     {
-      distanceFactor: 0.1,
-      zoomTarget: 0.3,
-      sizeFactor: 0.06
+      distanceFactor: 0.1 * sizeFactor,
+      zoomTarget: 0.3 * sizeFactor,
+      sizeFactor: 0.06 * sizeFactor
     },
     system.id % sounds.length,
     generatePlanetsSettings(0),

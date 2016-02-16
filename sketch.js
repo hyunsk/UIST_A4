@@ -435,9 +435,10 @@ function createSound(soundIndex, noteIndex, options){
         sound.connect(masterSound.sound);
       }else{
         sound.connect(delay);
+        sound.setVolume(1);
         delay.connect(masterSound.sound);
         delay.delayTime(spb);
-        delay.amp(0.5);
+        delay.amp(1);
       }
       break;
     case 1:
@@ -460,7 +461,7 @@ function createSound(soundIndex, noteIndex, options){
     switch(soundIndex){
       case 0:
         var pan = map(pA, 0, 1, -0.7, 0.7);
-        delay.feedback(map(pB, 0, 1, 0.00001, 0.8));
+        delay.feedback(map(pB, 0, 1, 0.1, 0.25));
         sound.pan(pan);
         break;
       default:

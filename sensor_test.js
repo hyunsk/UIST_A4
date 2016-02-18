@@ -15,6 +15,11 @@ var network = {
     socket.on("sense", function(event){
       console.log(event);
     })
+  },
+  onDebug: function(){
+    socket.on("debug", function(msg){
+      console.log(msg);
+    })
   }
 }
 

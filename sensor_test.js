@@ -2,22 +2,27 @@ var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'gastropub';
 var socket;
 
+var local_id = 0;
+
 
 var network = {
   setup: function(){
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
     this.onSense();
+    this.onDebug();
   },
   sendSense: function(event){
-    socket.emit("sense", event);
+    socket.emit("sense", local_id, event);
   },
   onSense: function(){
-    socket.on("sense", function(event){
-      console.log(event);
+    socket.on("sense", function(local, event){
+      if (local == local_id){
+        console.log(event);
+      }
     })
   },
   onDebug: function(){
-    socket.on("debug", function(msg){
+    socket.on("debug", function(id, msg){
       console.log(msg);
     })
   }

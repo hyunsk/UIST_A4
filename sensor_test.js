@@ -2,7 +2,7 @@ var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'gastropub';
 var socket;
 
-var local_id = 10;
+var local_id = 1;
 
 
 var network = {
@@ -23,7 +23,10 @@ var network = {
   },
   onDebug: function(){
     socket.on("debug", function(id, msg){
-      console.log(msg);
+      if (local_id == id){
+        console.log(msg);
+      }
+
     })
   },
   sendDebug: function(msg){

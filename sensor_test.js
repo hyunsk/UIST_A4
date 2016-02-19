@@ -40,7 +40,7 @@ function draw() {
 }
 
 function deviceShaken(){
-  sendSense("hello");
+  network.sendDebug("hello");
 }
 
 function deviceOrientationIsAtPlane(plane){

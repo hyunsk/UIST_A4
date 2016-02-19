@@ -17,7 +17,7 @@ var network = {
   onSense: function(){
     socket.on("sense", function(local, event){
       if (local == local_id){
-        console.log(event);
+        //console.log(event);
       }
     })
   },

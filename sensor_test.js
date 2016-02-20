@@ -1,8 +1,9 @@
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'gastropub';
 var socket;
-
 var local_id = 1;
+
+
 
 
 var network = {
@@ -17,7 +18,7 @@ var network = {
   onSense: function(){
     socket.on("sense", function(local, event){
       if (local == local_id){
-        //console.log(event);
+        console.log(event);
       }
     })
   },
@@ -40,26 +41,30 @@ function setup(){
 
 function draw() {
 
-}
+
+    if (rotationY < -10 || rotationY > 10) {
+    
+  } else {
+    network.sendDebug("true");
+  }
+
+    //network.sendDebug("x " + rotationX);
+    //network.sendDebug("y " + rotationY);
+    //network.sendDebug("z " +rotationZ);
+  }
+  
 
 function deviceShaken(){
   network.sendDebug("hello");
 }
 
-function deviceOrientationIsAtPlane(plane){
+function deviceOrientationIsFlat(){
   // takes a plane and returns true or false if the device orientation matches roughly
-  var isAtPlane = false;
-
-  switch(plane){
-    case "x":
-      break;
-    case "y":
-      break;
-    case "z":
-      break;
+  if (rotationY < -10 || rotationY > 10) {
+    return false;
+  } else {
+    return true;
   }
-
-  return isAtPlane;
 }
 
 function setupDeviceShaken(){

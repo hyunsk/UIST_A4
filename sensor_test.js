@@ -58,6 +58,58 @@ function deviceShaken(){
   network.sendDebug("hello");
 }
 
+function drawMobileScreen(i, isHit) {
+
+  var colors = [
+    "#106EE8",
+    "#37B7B5",
+    "#59A27A",
+    "#A56CC1",
+    "#E14242"]
+
+    switch(i) {
+      case 0:
+          if (isHit) {
+            fill('#FFFFFF')
+          } else {
+            fill(colors[0])   
+          }
+          rect(0, 0, windowWidth, windowHeight);
+          break;
+      case 1:
+          if (isHit) {
+            fill('#FFFFFF')
+          } else {
+            fill(colors[0])   
+          }
+          break;
+      case 2:
+          if (isHit) {
+            fill('#FFFFFF')
+          } else {
+            fill(colors[0])   
+          }
+          rect(0, 0, windowWidth, windowHeight);
+          break;
+      case 3:
+          if (isHit) {
+            fill('#FFFFFF')
+          } else {
+            fill(colors[0])   
+          }
+          rect(0, 0, windowWidth, windowHeight);
+          break;
+      case 4:
+          if (isHit) {
+            fill('#FFFFFF')
+          } else {
+            fill(colors[0])   
+          }
+          rect(0, 0, windowWidth, windowHeight);
+          break;
+    }
+}
+
 function deviceOrientationIsFlat(){
   // takes a plane and returns true or false if the device orientation matches roughly
   if (rotationY < -10 || rotationY > 10) {

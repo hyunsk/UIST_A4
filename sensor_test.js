@@ -1,6 +1,7 @@
 var SOCKET_URL = 'wss://fierce-plains-17880.herokuapp.com/';
 var TEAM_NAME  = 'gastropub';
 var socket;
+
 var baseRotZ = null;
 var setBaseRot = false;
 var previousAngle = -1;
@@ -8,6 +9,8 @@ var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 
 var local_id = 2;
+
+
 
 
 var network = {
@@ -22,7 +25,7 @@ var network = {
   onSense: function(){
     socket.on("sense", function(local, event){
       if (local == local_id){
-        //console.log(event);
+        console.log(event);
       }
     })
   },
@@ -59,25 +62,37 @@ function draw() {
         previousAngle = mapDeviceAngle();
     }
 }
+  
 
 function deviceShaken(){
  // network.sendDebug("hello");
 }
 
-function deviceOrientationIsAtPlane(plane){
-  // takes a plane and returns true or false if the device orientation matches roughly
-  var isAtPlane = false;
+function fillWindow(i, isHit) {
 
-  switch(plane){
-    case "x":
-      break;
-    case "y":
-      break;
-    case "z":
-      break;
+  var colors = [
+    "#106EE8",
+    "#37B7B5",
+    "#59A27A",
+    "#A56CC1",
+    "#E14242"];
+
+  if (isHit){
+    fill("#FFFFFF");
+  }else{
+    fill(colors[i]);
   }
 
-  return isAtPlane;
+  rect(0, 0, windowWidth, windowHeight);
+}
+
+function deviceOrientationIsFlat(){
+  // takes a plane and returns true or false if the device orientation matches roughly
+  if (rotationY < -10 || rotationY > 10) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 function setupDeviceShaken(){

@@ -8,7 +8,7 @@ var previousAngle = -1;
 var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 
-var local_id = 10;
+var local_id = 15;
 
 
 
@@ -70,6 +70,11 @@ function draw() {
 
 function deviceShaken(){
   var key;
+
+  var keyBoard = ['Q', 'W', 'E', 'R'];
+
+  key = keyBoard[previousAngle];
+  fillWindow(null, true);
 
   socket.emit("keypress", local_id, key);
 }

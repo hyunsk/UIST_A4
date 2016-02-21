@@ -8,7 +8,7 @@ var previousAngle = -1;
 var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 
-var local_id = 2;
+var local_id = 10;
 
 
 
@@ -44,9 +44,11 @@ var network = {
 
 function setup(){
   network.setup();
+  createCanvas(windowWidth, windowHeight); // Use the full browser window
 }
 
 function draw() {
+    var currentAngle = null;
     // checks if rotation is initialized, then sets base Z rotation once
     if (rotationZ != 0 && setBaseRot == false)
     {
@@ -57,9 +59,11 @@ function draw() {
     }
 
     // sets each new note only once
-    if (mapDeviceAngle() != previousAngle) {
-      previousAngle = mapDeviceAngle();
+    currentAngle = mapDeviceAngle();
+    if (!_.isUndefined(currentAngle)) {
+      previousAngle = currentAngle;
       fillWindow(previousAngle, false);
+      network.sendDebug("current Angle " + previousAngle);
     }
 }
   
@@ -69,6 +73,9 @@ function deviceShaken(){
 }
 
 function fillWindow(i, isHit) {
+  if(_.isUndefined(i)){
+    return;
+  }
 
   var colors = [
     "#106EE8",

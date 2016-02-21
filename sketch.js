@@ -11,7 +11,11 @@ var bpm = 120;
 var spb = 1 / (bpm / 60);
 var fpb = framesPerBeat();
 
+<<<<<<< HEAD
 var univId = 15;
+=======
+var univId = 0;
+>>>>>>> 286be1a6c1f7f2c584d91f7c22e4caaa30efd252
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -43,7 +47,7 @@ var network = {
       //    system = univ[i];
       //  }
       //}
-      if (systemId == univId){
+      if (systemID == univId){
         system = mySolarSystem;
         handleKeyPress(system, key);
       }

@@ -45,6 +45,7 @@ var network = {
 function setup(){
   network.setup();
   createCanvas(windowWidth, windowHeight); // Use the full browser window
+  setShakeThreshold(1);
 }
 
 function draw() {
@@ -71,7 +72,7 @@ function draw() {
 function deviceShaken(){
   var key;
 
-  var keyBoard = ['Q', 'W', 'E', 'R'];
+  var keyBoard = ['Q', 'W', 'E', 'R', 'T'];
 
   key = keyBoard[previousAngle];
   fillWindow(null, true);

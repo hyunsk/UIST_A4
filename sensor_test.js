@@ -60,7 +60,7 @@ function draw() {
 
     // sets each new note only once
     currentAngle = mapDeviceAngle();
-    if (!_.isUndefined(currentAngle)) {
+    if (!_.isUndefined(currentAngle) && deviceOrientationIsFlat()) {
       previousAngle = currentAngle;
       fillWindow(previousAngle, false);
       network.sendDebug("current Angle " + previousAngle);

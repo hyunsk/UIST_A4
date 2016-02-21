@@ -7,8 +7,10 @@ var setBaseRot = false;
 var previousAngle = -1;
 var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
+var triggeredSound = false;
+var triggeredFrameCount;
 
-var univId = 0;
+var univId = 3;
 
 
 
@@ -44,7 +46,7 @@ var network = {
 function setup(){
   network.setup();
   createCanvas(windowWidth, windowHeight); // Use the full browser window
-  setShakeThreshold(1);
+  setShakeThreshold(10);
 }
 
 function draw() {
@@ -69,14 +71,27 @@ function draw() {
   
 
 function deviceShaken(){
-  var key;
+  var key, delayAmount;
 
   var keyBoard = ['Q', 'W', 'E', 'R', 'T'];
+  
 
   key = keyBoard[previousAngle];
-  fillWindow(null, true);
 
-  socket.emit("keypress", univId, key);
+
+  if (!triggeredSound) {
+      socket.emit("keypress", univId, key);
+      triggeredSound = true;
+      triggeredFrameCount = frameCount;
+      fillWindow(null, true);
+  }
+
+  delayAmount = 1;
+
+  if (frameCount > triggeredFrameCount + delayAmount) {
+    triggeredSound = false;
+  }
+
 }
 
 function fillWindow(i, isHit) {

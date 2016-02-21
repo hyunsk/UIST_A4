@@ -43,7 +43,7 @@ var network = {
       //    system = univ[i];
       //  }
       //}
-      if (systemId == univId){
+      if (systemID == univId){
         system = mySolarSystem;
         handleKeyPress(system, key);
       }

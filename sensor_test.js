@@ -69,7 +69,9 @@ function draw() {
   
 
 function deviceShaken(){
- // network.sendDebug("hello");
+  var key;
+
+  socket.emit("keypress", local_id, key);
 }
 
 function fillWindow(i, isHit) {

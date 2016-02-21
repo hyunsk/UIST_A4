@@ -11,6 +11,8 @@ var bpm = 120;
 var spb = 1 / (bpm / 60);
 var fpb = framesPerBeat();
 
+var univId = 10;
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Socket.io
@@ -28,20 +30,23 @@ var network = {
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
 
     this.onKeypress();
-    this.onCurrentUniverse();
-    this.sendJoined();
-    this.onJoined();
-    this.onNewSolarSystem();
+    //this.onCurrentUniverse();
+    //this.sendJoined();
+    //this.onJoined();
+    //this.onNewSolarSystem();
   },
   onKeypress: function(){
     socket.on("keypress", function(systemID, key){
       var system;
-      for (var i=0; i< univ.length; i++){
-        if (univ[i].id == systemID){
-          system = univ[i];
-        }
+      //for (var i=0; i< univ.length; i++){
+      //  if (univ[i].id == systemID){
+      //    system = univ[i];
+      //  }
+      //}
+      if (systemId == univId){
+        system = mySolarSystem;
+        handleKeyPress(system, key);
       }
-      handleKeyPress(system, key)
     });
   },
   sendKeypress: function (key) {

@@ -8,7 +8,7 @@ var previousAngle = -1;
 var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 
-var local_id = 0;
+var univId = 0;
 
 
 
@@ -19,25 +19,25 @@ var network = {
     this.onDebug();
   },
   sendSense: function(event){
-    socket.emit("sense", local_id, event);
+    socket.emit("sense", univId, event);
   },
   onSense: function(){
     socket.on("sense", function(local, event){
-      if (local == local_id){
+      if (local == univId){
         console.log(event);
       }
     })
   },
   onDebug: function(){
     socket.on("debug", function(id, msg){
-      if (local_id == id){
+      if (univId == id){
         console.log(msg);
       }
 
     })
   },
   sendDebug: function(msg){
-    socket.emit("debug", local_id, msg);
+    socket.emit("debug", univId, msg);
   }
 }
 
@@ -76,7 +76,7 @@ function deviceShaken(){
   key = keyBoard[previousAngle];
   fillWindow(null, true);
 
-  socket.emit("keypress", local_id, key);
+  socket.emit("keypress", univId, key);
 }
 
 function fillWindow(i, isHit) {

@@ -8,8 +8,7 @@ var previousAngle = -1;
 var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 
-var local_id = 15;
-
+var local_id = 0;
 
 
 

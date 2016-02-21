@@ -58,8 +58,8 @@ function draw() {
 
     // sets each new note only once
     if (mapDeviceAngle() != previousAngle) {
-        network.sendDebug(mapDeviceAngle());  
-        previousAngle = mapDeviceAngle();
+      previousAngle = mapDeviceAngle();
+      fillWindow(previousAngle, false);
     }
 }
   

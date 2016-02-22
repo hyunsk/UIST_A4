@@ -9,6 +9,7 @@ var angleLimits = [];  // stores Z rotation angle limits in this array
 var angleRangeInvert = []; // stores booleans of whether the range contains 359-1 break
 var triggeredSound = false;
 var triggeredFrameCount;
+var shakeDelay = 10;
 
 var univId = 3;
 
@@ -68,9 +69,7 @@ function draw() {
   fill("#dfdfdf");
   //text(rotationZ, (windowWidth / 2), 100);
 
-  var delayAmount = 1;
-
-  if (frameCount > triggeredFrameCount + delayAmount) {
+  if (frameCount > triggeredFrameCount + shakeDelay) {
     triggeredSound = false;
   }
 

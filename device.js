@@ -13,22 +13,10 @@ var triggeredFrameCount;
 var univId = 3;
 
 
-
 var network = {
   setup: function(){
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
-    this.onSense();
     this.onDebug();
-  },
-  sendSense: function(event){
-    socket.emit("sense", univId, event);
-  },
-  onSense: function(){
-    socket.on("sense", function(local, event){
-      if (local == univId){
-        console.log(event);
-      }
-    })
   },
   onDebug: function(){
     socket.on("debug", function(id, msg){
@@ -51,6 +39,8 @@ function setup(){
 
 function draw() {
     var currentAngle = null;
+
+    clear();
     // checks if rotation is initialized, then sets base Z rotation once
     if (rotationZ != 0 && setBaseRot == false)
     {
@@ -67,8 +57,44 @@ function draw() {
       fillWindow(previousAngle, false);
       network.sendDebug("current Angle " + previousAngle);
     }
+
+    mapRotationToFilter();
 }
-  
+
+function mapRotationToFilter(){
+  if(!touchIsDown){
+    return;
+  }
+  fill("#393E46");
+  rect(0, 0, windowWidth, windowHeight);
+
+  textSize(60);
+  textAlign(CENTER);
+  fill("#dfdfdf");
+  text("filter", windowWidth/2, 100);
+
+  var rotY = rotationY;
+  var rotX = rotationX;
+
+  rotY = (rotY < -60) ? -60 : rotY;
+  rotY = (rotY > 60) ? 60 : rotY;
+  rotX = (rotX < -60) ? -60 : rotX;
+  rotX = (rotX > 60) ? 60 : rotX;
+
+
+  var x= map(rotY, -70, 70, 0, windowWidth);
+  var y= map(rotX, -60, 60, 0, windowHeight);
+  var freqNorm = map(rotationY, -70, 70, 0, 1);
+  var resNorm = map(rotationX, -60, 60, 1, 0);
+
+
+  fill("#dfdfdf");
+  ellipse(x, y, 100, 100);
+
+  socket.emit("filter", univId, freqNorm, resNorm);
+}
+
+
 
 function deviceShaken(){
   var key, delayAmount;
@@ -80,10 +106,14 @@ function deviceShaken(){
 
 
   if (!triggeredSound) {
-      socket.emit("keypress", univId, key);
-      triggeredSound = true;
-      triggeredFrameCount = frameCount;
-      fillWindow(null, true);
+    if (touchIsDown){
+      return;
+    }
+
+    socket.emit("keypress", univId, key);
+    triggeredSound = true;
+    triggeredFrameCount = frameCount;
+    fillWindow(null, true);
   }
 
   delayAmount = 1;
@@ -156,16 +186,6 @@ function setupAngles() {
     {
       angleRangeInvert[i] = false;
     }
-  }
-
-  // console logs
-  for (var i = 0; i < 6; i++)
-  {
-    network.sendDebug(angleLimits[i]);
-  }
-  for (var i = 0; i < 5; i++)
-  {
-    network.sendDebug(angleRangeInvert[i]);
   }
 }
 

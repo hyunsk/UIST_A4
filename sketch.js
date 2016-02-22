@@ -30,10 +30,18 @@ var network = {
     socket = io(SOCKET_URL + TEAM_NAME); // Open a socket connection to the server.
 
     this.onKeypress();
+    this.onFilter();
     //this.onCurrentUniverse();
     //this.sendJoined();
     //this.onJoined();
     //this.onNewSolarSystem();
+  },
+  onFilter: function(){
+    socket.on("filter", function(systemID, freqNorm, resNorm){
+      if (systemID == univId){
+        setMasterFilter(freqNorm, resNorm);
+      }
+    });
   },
   onKeypress: function(){
     socket.on("keypress", function(systemID, key){
@@ -822,6 +830,14 @@ function handleMouseToMasterSound(){
   masterSound.set(freq, res)
 }
 
+function setMasterFilter(freqNormalized, resNormalized){
+  var freq = map(freqNormalized, 0, 1, 20, 10000);
+
+  var res = map(resNormalized, 0, 1, 0, 3);
+
+  masterSound.set(freq, res)
+}
+
 //
 // Input
 //
@@ -850,7 +866,7 @@ function draw() {
     system.zoom();
   });
 
-  handleMouseToMasterSound();
+  //handleMouseToMasterSound();
 }
 
 //

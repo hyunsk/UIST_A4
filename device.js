@@ -64,9 +64,9 @@ function draw() {
     }
   }
 
-  textSize(50);
-  textAlign(CENTER);
-  fill("#dfdfdf");
+  //textSize(50);
+  //textAlign(CENTER);
+  //fill("#dfdfdf");
   //text(rotationZ, (windowWidth / 2), 100);
 
   if (frameCount > triggeredFrameCount + shakeDelay) {
@@ -165,11 +165,6 @@ function deviceOrientationIsFlat() {
   }
 }
 
-function setupDeviceShaken() {
-  // setup device shake threshold
-
-}
-
 function setupAngles() {
   var intervalAmount = 40; // set size of interval angle range
   var intervalMultiplier = 2.5; // used to calculate the interval values
@@ -255,10 +250,4 @@ function mapDeviceAngle() {
     }
   }
 }
-
-function mapDeviceAcceleration(axis) {
-  // takes a axis and maps it to 0-1
-
-}
-
 
